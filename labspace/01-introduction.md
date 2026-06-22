@@ -6,3 +6,8 @@
 - Do Multi-stage build with Hardened Images
 - Scan Hardened Images
 - Use Compose with Hardened Images
+
+
+First thing to get started, please provide your Container Registry prefix:
+
+::variableDefinition[registry]{prompt="What is your Container Registry prefix?"}

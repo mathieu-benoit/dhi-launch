@@ -1,9 +1,5 @@
 # Pull & Run
 
-First thing to get started, please provide your Container Registry prefix:
-
-::variableDefinition[registry]{prompt="What is your Container Registry prefix?"}
-
 ## Pull the Python image
 
 Pull the hardened Python image from your private registry:
