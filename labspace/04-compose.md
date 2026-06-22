@@ -26,7 +26,7 @@ Enter a reservation using the application to confirm that the application is wor
 
 ## Scan the PostgreSQL image
 
-Compare the CVEs between the initial PostgreSQL image and the hardened PostgreSQL image:
+_Just for illustration, no need to run the command,_ compare the CVEs between the initial PostgreSQL image and the hardened PostgreSQL image:
 
 ```bash no-run-button no-copy-button
 docker scout compare --ignore-unchanged --to postgres:18 $$registry$$postgres:18-debian13

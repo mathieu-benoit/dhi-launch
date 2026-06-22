@@ -27,7 +27,7 @@ Build the updated image with the hardened `-dev` variant:
 docker build -t dinner:dhi-dev .
 ```
 
-Compare the CVEs between the initial image and the latest hardened  `-dev` image built locally:
+Compare the CVEs between the initial image and the latest hardened `-dev` image built locally:
 
 ```bash
 docker scout compare --ignore-unchanged --to dinner:initial dinner:dhi-dev
@@ -37,6 +37,16 @@ See the number of CVEs, packages and size of the image just got improved:
 - CVEs: +1
 - Packages: -19
 - Size (on disk): -20MB
+
+## Test the "shell" variant
+
+Try to run a shell with this hardened `-dev` image built locally:
+
+```bash
+docker run --rm -it dinner:dhi-dev sh
+```
+
+You can run some commands because this `-dev` variant image has a shell, a package manager and extra system packages.
 
 ## Update the Dockerfile to use a distroless base image
 
@@ -64,7 +74,7 @@ CMD ["python", "/app/app.py"]
 docker build -t dinner:distroless .
 ```
 
-Compare the CVEs between the initial image and the latest hardened image built locally:
+Compare the CVEs between the initial image and the hardened `distroless` image built locally:
 
 ```bash
 docker scout compare --ignore-unchanged --to dinner:initial dinner:distroless
@@ -74,3 +84,13 @@ See the number of CVEs, packages and size of the image just got improved:
 - CVEs: -15
 - Packages: -76
 - Size (on disk): -112MB
+
+## Test the "no shell" variant
+
+Try to run a shell with this hardened `distroless` image built locally:
+
+```bash
+docker run --rm -it dinner:distroless sh
+```
+
+You cannot run any commands because this `distroless` variant image doesn't have a shell, a package manager or any extra system packages.
