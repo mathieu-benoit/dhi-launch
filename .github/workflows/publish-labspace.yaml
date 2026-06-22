@@ -3,6 +3,9 @@ name: Package and deploy Labspace
 env:
   DOCKERHUB_REPO: ghcr.io/${{ github.repository_owner }}/labspace-dhi-launch
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -12,6 +15,9 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
