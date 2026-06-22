@@ -16,10 +16,8 @@ sections:
     contentPath: 03-multi-stage.md
   - title: Compose
     contentPath: 04-compose.md
-  - title: Scan
-    contentPath: 05-scan.md
   - title: Conclusion
-    contentPath: 06-conclusion.md
+    contentPath: 05-conclusion.md
 
 # Services are used to add default tabs in the Labspace interface.
 # The IDE will always be present as a service, but you can add additional services as needed.

@@ -1,68 +1,76 @@
-# Main content
+# Multi-stage build
 
-## Another section heading
+## Build the Python image
 
-Phasellus consequat vitae enim non ultricies. Quisque sed hendrerit libero. 
-
-Nunc in faucibus neque. Ut feugiat vulputate nisl, at iaculis urna malesuada in. 
-
-
-
-## Code blocks
-
-**Both run and copy buttons:**
+Build the initial image:
 
 ```bash
-docker ps
+docker build -t dinner:initial --sbom=true --provenance=mode=max .
 ```
 
-**No run button:**
+## ## Update the Dockerfile to use an hardened `-dev` base image
 
-```bash no-run-button
-docker ps
+Change the base image in the `FROM` instruction in the :fileLink[Dockerfile]{path="Dockerfile" line=1} and save.
+
+```yaml
+FROM $$registry$$python:3.14-debian13-dev
 ```
 
-**No buttons:**
-
-```bash no-run-button no-copy-button
-docker ps
+```diff no-copy-button
+- FROM python:3.14-slim
++ FROM $$registry$$python:3.14-debian13-dev
 ```
 
-Aenean tincidunt consectetur magna, ac fringilla risus dictum non.
+Build the updated image with the hardened `-dev` variant:
 
-
-
-## Save a file
-
-This block will provide a "Save file" button, which will create a file named `lorem-ipsum.txt`.
-
-```plaintext save-as=lorem-ipsum.txt
-Nulla eget nisl odio. Vestibulum enim nibh, varius id venenatis euismod, lacinia a ipsum. Suspendisse potenti. Morbi semper tortor quis magna consequat viverra. Nulla pretium, ligula ut consectetur tempor, tellus enim bibendum ex, eget sagittis massa metus at quam. Interdum et malesuada fames ac ante ipsum primis in faucibus
+```bash
+docker build -t dinner:dhi-dev --sbom=true --provenance=mode=max .
 ```
 
+Compare the CVEs between the initial image and the latest hardened  `-dev` image built locally:
 
-## Links
+```bash
+docker scout compare --ignore-unchanged --to dinner:initial dinner:dhi-dev
+```
 
-[This link](https://hub.docker.com) goes to Docker Hub that will open in a new browser tab
+See the number of CVEs, packages and size of the image just got improved:
+- CVEs: +1
+- Packages: -20
+- Size (on disk): -33MB
 
-:tabLink[This link]{href="http://localhost:3000" title="Web app"} will go to localhost:3000 (which obviously won't run right now), but open in a new tab here in the interface.
+## Update the Dockerfile to use a distroless base image
 
+Update the :fileLink[Dockerfile]{path="Dockerfile"} with this content:
 
+```yaml save-as=Dockerfile
+FROM $$registry$$python:3.14-debian13-dev AS builder
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+WORKDIR /app
+RUN pip install psycopg2-binary --target /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt --target /app
 
-## Custom variables
+FROM $$registry$$python:3.14-debian13 AS prod
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+COPY --from=builder /app /app
+COPY . /app
+EXPOSE 5000
+CMD ["python", "/app/app.py"]
+```
 
-Labspaces provide the ability for an author to request a value for a variable and then have that value be replaced in both interface display and interactive elements (code execution, file saving, etc.)
+```bash
+docker build -t dinner:distroless --sbom=true --provenance=mode=max .
+```
 
-To define a variable, use the `::variableDefinition` directive. The portion inside the square brackets defines the name of the variable and the `prompt` is used in the request to the user.
+Compare the CVEs between the initial image and the latest hardened image built locally:
 
-As an example, the following directive usage will create a variable named `username` after prompting the user "What is your Docker username?"
+```bash
+docker scout compare --ignore-unchanged --to dinner:initial dinner:distroless
+```
 
-    ::variableDefinition[username]{prompt="What is your Docker username?"}
-
-To use the variable, wrap the variable with `$$`. For example, the following would display the previously defined variable:
-
-    ```bash
-    docker build -t $$username$$/my-first-website .
-    ```
-
-If the variable has no value, the displayed value reverts to displaying the name of the variable.
+See the number of CVEs, packages and size of the image just got improved:
+- CVEs: -28
+- Packages: -90
+- Size (on disk): -97MB

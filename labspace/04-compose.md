@@ -1,18 +1,5 @@
 # Compose
 
-## Modify the Dockerfile to use the hardened Python image
-
-Change the base image in the `FROM` in the :fileLink[Dockerfile]{path="Dockerfile" line=1} and save.
-
-```yaml
-FROM $$registry$$python:3.14-debian13-dev
-```
-
-```diff no-copy-button
-- FROM python:3.14-slim
-+ FROM $$registry$$python:3.14-debian13-dev
-```
-
 ## Modify the Docker Compose file to use the PostgreSQL image
 
 Change the db image in the :fileLink[compose.yaml]{path="compose.yaml" line=12} and save.
@@ -36,3 +23,16 @@ docker compose up -d --build
 Go to the application in the browser: :tabLink[http://localhost:5001]{href="http://localhost:5001" title="App" id=app}.
 
 Enter a reservation using the application to confirm that the application is working.
+
+## Scan the PostgreSQL image
+
+Compare the CVEs between the initial PostgreSQL image and the hardened PostgreSQL image:
+
+```bash
+docker scout compare --ignore-unchanged --to postgres:18 $$registry$$postgres:18-debian13
+```
+
+See the number of CVEs, packages and size of the image just got improved:
+- CVEs: -75
+- Packages: -68
+- Size (on disk): 83MB

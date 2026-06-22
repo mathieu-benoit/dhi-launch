@@ -4,5 +4,5 @@
 
 - Pull & Run Hardened Images
 - Do Multi-stage build with Hardened Images
-- Use Compose with Hardened Images
 - Scan Hardened Images
+- Use Compose with Hardened Images
