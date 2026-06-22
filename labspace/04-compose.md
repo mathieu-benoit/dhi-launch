@@ -33,6 +33,6 @@ docker scout compare --ignore-unchanged --to postgres:18 $$registry$$postgres:18
 ```
 
 See the number of CVEs, packages and size of the image just got improved:
-- CVEs: -75
-- Packages: -68
-- Size (on disk): 83MB
+- CVEs: -44
+- Packages: -67
+- Size (on disk): 99MB

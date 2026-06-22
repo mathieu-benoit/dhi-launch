@@ -24,7 +24,7 @@ FROM $$registry$$python:3.14-debian13-dev
 Build the updated image with the hardened `-dev` variant:
 
 ```bash
-docker build -t dinner:dhi-dev --sbom=true --provenance=mode=max .
+docker build -t dinner:dhi-dev .
 ```
 
 Compare the CVEs between the initial image and the latest hardened  `-dev` image built locally:
@@ -35,8 +35,8 @@ docker scout compare --ignore-unchanged --to dinner:initial dinner:dhi-dev
 
 See the number of CVEs, packages and size of the image just got improved:
 - CVEs: +1
-- Packages: -20
-- Size (on disk): -33MB
+- Packages: -19
+- Size (on disk): -20MB
 
 ## Update the Dockerfile to use a distroless base image
 
@@ -61,7 +61,7 @@ CMD ["python", "/app/app.py"]
 ```
 
 ```bash
-docker build -t dinner:distroless --sbom=true --provenance=mode=max .
+docker build -t dinner:distroless .
 ```
 
 Compare the CVEs between the initial image and the latest hardened image built locally:
@@ -71,6 +71,6 @@ docker scout compare --ignore-unchanged --to dinner:initial dinner:distroless
 ```
 
 See the number of CVEs, packages and size of the image just got improved:
-- CVEs: -28
-- Packages: -90
-- Size (on disk): -97MB
+- CVEs: -15
+- Packages: -76
+- Size (on disk): -112MB
