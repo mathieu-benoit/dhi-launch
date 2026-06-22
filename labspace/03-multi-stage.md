@@ -8,7 +8,7 @@ Build the initial image:
 docker build -t dinner:initial --sbom=true --provenance=mode=max .
 ```
 
-## ## Update the Dockerfile to use an hardened `-dev` base image
+## Update the Dockerfile to use an hardened `-dev` base image
 
 Change the base image in the `FROM` instruction in the :fileLink[Dockerfile]{path="Dockerfile" line=1} and save.
 

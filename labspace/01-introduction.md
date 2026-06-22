@@ -11,3 +11,8 @@
 First thing to get started, please provide your Container Registry prefix:
 
 ::variableDefinition[registry]{prompt="What is your Container Registry prefix?"}
+
+
+FIXME/TODOs:
+- Pre-build the initial image
+- SSH in multi-stage
