@@ -30,7 +30,7 @@ You get this error message:
 OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH
 ```
 
-You cannot run any commands because this `distroless` variant image doesn't have a shell, a package manager or any extra system packages. We will illustrate this part in the next section.
+You cannot run any commands because this `runtime` variant image doesn't have a shell, a package manager or any extra system packages. We will illustrate this part in the next section.
 
 ## Test the access to internal website
 

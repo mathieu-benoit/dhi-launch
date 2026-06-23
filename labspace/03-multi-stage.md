@@ -1,6 +1,6 @@
 # Multi-stage build
 
-## Update the Dockerfile to use an hardened `-dev` base image
+## Update the Dockerfile to use an hardened `dev` base image
 
 Change the base image in the `FROM` instruction in the :fileLink[Dockerfile]{path="Dockerfile" line=1} and save.
 
@@ -13,32 +13,35 @@ FROM $$registry$$python:3.14-debian13-dev
 + FROM $$registry$$python:3.14-debian13-dev
 ```
 
-Build the updated image with the hardened `-dev` variant:
+Build the updated image with the hardened `dev` variant:
 
 ```bash
 docker build -t dinner:dhi-dev .
 ```
 
-Compare the CVEs between the initial image and the latest hardened `-dev` image built locally:
+Compare the CVEs between the initial image and the latest hardened `dev` image built locally:
 
 ```bash
-docker scout compare --ignore-unchanged --to $$ghcr$$/mathieu-benoit/dinner:initial dinner:dhi-dev
+docker scout compare \
+    --ignore-unchanged \
+    --to $$ghcr$$/mathieu-benoit/dinner:initial@sha256:a8b1c9e163a383400b018d5009b9323b08d25461c2ceba9ed03f4c8f32c3d960 \
+    dinner:dhi-dev
 ```
 
 See the number of CVEs, packages and size of the image just got improved:
-- CVEs: +1
-- Packages: -19
-- Size (on disk): -20MB
+- CVEs: -232
+- Packages: -367
+- Size (on disk): -1443MB
 
 ## Test the "shell" variant
 
-Try to run a shell with this hardened `-dev` image built locally:
+Try to run a shell with this hardened `dev` image built locally:
 
 ```bash
 docker run --rm -it dinner:dhi-dev sh
 ```
 
-You can run some commands because this `-dev` variant image has a shell, a package manager and extra system packages.
+You can run some commands because this `dev` variant image has a shell, a package manager and extra system packages.
 
 Exit the opened shell:
 
@@ -46,7 +49,7 @@ Exit the opened shell:
 exit
 ```
 
-## Update the Dockerfile to use a distroless base image
+## Update the Dockerfile to use a runtime base image
 
 Update the :fileLink[Dockerfile]{path="Dockerfile"} with this content:
 
@@ -59,7 +62,7 @@ RUN pip install psycopg2-binary --target /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt --target /app
 
-FROM $$registry$$python:3.14-debian13 AS prod
+FROM $$registry$$python:3.14-debian13 AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 COPY --from=builder /app /app
@@ -69,32 +72,26 @@ CMD ["python", "/app/app.py"]
 ```
 
 ```bash
-docker build -t dinner:distroless .
+docker build -t dinner:runtime .
 ```
 
-Compare the CVEs between the initial image and the hardened `distroless` image built locally:
+Compare the CVEs between the initial image and the hardened `runtime` image built locally:
 
 ```bash
-docker scout compare --ignore-unchanged --to $$ghcr$$/mathieu-benoit/dinner:initial dinner:distroless
+docker scout compare --ignore-unchanged --to dinner:dev dinner:runtime
 ```
 
 See the number of CVEs, packages and size of the image just got improved:
-- CVEs: -15
-- Packages: -76
-- Size (on disk): -112MB
+- CVEs: -16
+- Packages: -57
+- Size (on disk): -92MB
 
 ## Test the "no shell" variant
 
-Try to run a shell with this hardened `distroless` image built locally:
+Try to run a shell with this hardened `runtime` image built locally:
 
 ```bash
-docker run -d --name myapp dinner:distroless python -c "import time; time.sleep(300)"
-```
-
-Try to jump into this running container:
-
-```bash
-docker exec -it myapp sh
+docker run --rm -it dinner:runtime sh
 ```
 
 You get this error message:
@@ -103,10 +100,6 @@ You get this error message:
 OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH
 ```
 
-You cannot run any commands because this `distroless` variant image doesn't have a shell, a package manager or any extra system packages.
+You cannot run any commands because this `runtime` variant image doesn't have a shell, a package manager or any extra system packages.
 
-Out of scope of this workshop, but instead, you can use the `docker debug` command to attach a temporary, tool-rich debug container to the running instance.
-
-```bash no-copy-button
-docker debug myapp
-```
+_Note: Out of scope of this workshop, but instead, you can use the `docker debug` or `kubectl debug` commands to attach a temporary, tool-rich debug container to the running instance._
