@@ -26,7 +26,3 @@ Configured registry URLs:
 - DockerHub URL: $$dockerhub$$
 
 ---
-
-FIXME/TODOs:
-- Pre-build the initial image
-- PDF
