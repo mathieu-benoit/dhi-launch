@@ -75,7 +75,7 @@ CMD ["python", "/app/app.py"]
 docker build -t dinner:runtime .
 ```
 
-Compare the CVEs between the initial image and the hardened `runtime` image built locally:
+Compare the CVEs between the `dev` and the `runtime` hardened images built locally:
 
 ```bash
 docker scout compare --ignore-unchanged --to dinner:dev dinner:runtime
