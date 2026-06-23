@@ -1,13 +1,5 @@
 # Multi-stage build
 
-## Build the Python image
-
-Build the initial image:
-
-```bash
-docker build -t dinner:initial --sbom=true --provenance=mode=max .
-```
-
 ## Update the Dockerfile to use an hardened `-dev` base image
 
 Change the base image in the `FROM` instruction in the :fileLink[Dockerfile]{path="Dockerfile" line=1} and save.
@@ -30,7 +22,7 @@ docker build -t dinner:dhi-dev .
 Compare the CVEs between the initial image and the latest hardened `-dev` image built locally:
 
 ```bash
-docker scout compare --ignore-unchanged --to dinner:initial dinner:dhi-dev
+docker scout compare --ignore-unchanged --to ghcr.io/mathieu-benoit/dinner:initial dinner:dhi-dev
 ```
 
 See the number of CVEs, packages and size of the image just got improved:
@@ -77,7 +69,7 @@ docker build -t dinner:distroless .
 Compare the CVEs between the initial image and the hardened `distroless` image built locally:
 
 ```bash
-docker scout compare --ignore-unchanged --to dinner:initial dinner:distroless
+docker scout compare --ignore-unchanged --to ghcr.io/mathieu-benoit/dinner:initial dinner:distroless
 ```
 
 See the number of CVEs, packages and size of the image just got improved:
