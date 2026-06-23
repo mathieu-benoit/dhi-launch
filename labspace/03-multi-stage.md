@@ -16,7 +16,7 @@ FROM $$registry$$python:3.14-debian13-dev
 Build the updated image with the hardened `dev` variant:
 
 ```bash
-docker build -t dinner:dhi-dev .
+docker build -t dinner:dev .
 ```
 
 Compare the CVEs between the initial image and the latest hardened `dev` image built locally:
@@ -25,7 +25,7 @@ Compare the CVEs between the initial image and the latest hardened `dev` image b
 docker scout compare \
     --ignore-unchanged \
     --to $$ghcr$$/mathieu-benoit/dinner:initial@sha256:a8b1c9e163a383400b018d5009b9323b08d25461c2ceba9ed03f4c8f32c3d960 \
-    dinner:dhi-dev
+    dinner:dev
 ```
 
 See the number of CVEs, packages and size of the image just got improved:
@@ -38,7 +38,7 @@ See the number of CVEs, packages and size of the image just got improved:
 Try to run a shell with this hardened `dev` image built locally:
 
 ```bash
-docker run --rm -it dinner:dhi-dev sh
+docker run --rm -it dinner:dev sh
 ```
 
 You can run some commands because this `dev` variant image has a shell, a package manager and extra system packages.
