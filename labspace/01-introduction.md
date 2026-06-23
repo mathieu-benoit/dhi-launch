@@ -6,7 +6,7 @@
 - Do Multi-stage build with Hardened Images
 - Use Compose with Hardened Images
 
-Throughout this lab you will use a repository containing a Restaurant reservation application consisting of a basic Python app talking to a PostgreSQL database to demonstrate the use of Hardened Images.
+Throughout this lab you will use a repository containing a Restaurant reservation (`dinner`) application consisting of a basic Python app talking to a PostgreSQL database to demonstrate the use of Hardened Images.
 
 First things to get started, please provide following registry URLs:
 

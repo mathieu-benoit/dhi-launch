@@ -2,7 +2,7 @@
 
 👋 Welcome to the Hardened Images Launch lab!
 
-> A repository containing a Restaurant reservation application consisting of a basic Python app talking to a PostgreSQL database to demonstrate the use of Hardened Images.
+> A repository containing a Restaurant reservation (`dinner`) application consisting of a basic Python app talking to a PostgreSQL database to demonstrate the use of Hardened Images.
 
 During this lab, you will learn to do the following:
 - Pull & Run Hardened Images
