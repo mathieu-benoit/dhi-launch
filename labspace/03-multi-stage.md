@@ -104,3 +104,9 @@ OCI runtime exec failed: exec failed: unable to start container process: exec: "
 ```
 
 You cannot run any commands because this `distroless` variant image doesn't have a shell, a package manager or any extra system packages.
+
+Out of scope of this workshop, but instead, you can use the `docker debug` command to attach a temporary, tool-rich debug container to the running instance.
+
+```bash no-copy-button
+docker debug myapp
+```
