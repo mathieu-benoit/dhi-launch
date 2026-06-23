@@ -10,7 +10,7 @@ First things to get started, please provide following registry URLs:
 
 ::variableDefinition[registry]{prompt="What is your Hardened Images Container Registry prefix?"}
 
-::variableDefinition[ghcr]{prompt="What is your GitHub Container Registry (ghcr) remote repository URL?"}
+::variableDefinition[ghcr]{prompt="What is your GitHub Container Registry (ghcr.io) remote repository URL?"}
 
 ::variableDefinition[dockerhub]{prompt="What is your DockerHub remote repository URL ?"}
 

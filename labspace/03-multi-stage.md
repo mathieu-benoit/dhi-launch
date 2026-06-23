@@ -9,7 +9,7 @@ FROM $$registry$$python:3.14-debian13-dev
 ```
 
 ```diff no-copy-button
-- FROM python:3.14-slim
+- FROM python:3.14
 + FROM $$registry$$python:3.14-debian13-dev
 ```
 
@@ -88,7 +88,19 @@ See the number of CVEs, packages and size of the image just got improved:
 Try to run a shell with this hardened `distroless` image built locally:
 
 ```bash
-docker run --rm -it dinner:distroless sh
+docker run -d --name myapp dinner:distroless python -c "import time; time.sleep(300)"
+```
+
+Try to jump into this running container:
+
+```bash
+docker exec -it myapp sh
+```
+
+You get this error message:
+
+```none no-copy-button
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH
 ```
 
 You cannot run any commands because this `distroless` variant image doesn't have a shell, a package manager or any extra system packages.

@@ -24,6 +24,14 @@ Try to run a shell with this hardened Python image:
 docker run --rm -it $$registry$$python:3.14-debian13 sh
 ```
 
+You get this error message:
+
+```none no-copy-button
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH
+```
+
+You cannot run any commands because this `distroless` variant image doesn't have a shell, a package manager or any extra system packages. We will illustrate this part in the next section.
+
 ## Test the access to internal website
 
 Identify a website with your corporate issued TLS certificate:
