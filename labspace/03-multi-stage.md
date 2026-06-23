@@ -22,7 +22,7 @@ docker build -t dinner:dhi-dev .
 Compare the CVEs between the initial image and the latest hardened `-dev` image built locally:
 
 ```bash
-docker scout compare --ignore-unchanged --to ghcr.io/mathieu-benoit/dinner:initial dinner:dhi-dev
+docker scout compare --ignore-unchanged --to $$ghcr$$/mathieu-benoit/dinner:initial dinner:dhi-dev
 ```
 
 See the number of CVEs, packages and size of the image just got improved:
@@ -39,6 +39,12 @@ docker run --rm -it dinner:dhi-dev sh
 ```
 
 You can run some commands because this `-dev` variant image has a shell, a package manager and extra system packages.
+
+Exit the opened shell:
+
+```bash
+exit
+```
 
 ## Update the Dockerfile to use a distroless base image
 
@@ -69,7 +75,7 @@ docker build -t dinner:distroless .
 Compare the CVEs between the initial image and the hardened `distroless` image built locally:
 
 ```bash
-docker scout compare --ignore-unchanged --to ghcr.io/mathieu-benoit/dinner:initial dinner:distroless
+docker scout compare --ignore-unchanged --to $$ghcr$$/mathieu-benoit/dinner:initial dinner:distroless
 ```
 
 See the number of CVEs, packages and size of the image just got improved:

@@ -29,7 +29,7 @@ Enter a reservation using the application to confirm that the application is wor
 _Just for illustration, no need to run the command,_ compare the CVEs between the initial PostgreSQL image and the hardened PostgreSQL image:
 
 ```bash no-run-button no-copy-button
-docker scout compare --ignore-unchanged --to postgres:18 $$registry$$postgres:18-debian13
+docker scout compare --ignore-unchanged --to $$dockerhub$$/postgres:18 $$registry$$postgres:18-debian13
 ```
 
 See the number of CVEs, packages and size of the image just got improved:
