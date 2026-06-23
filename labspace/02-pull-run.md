@@ -27,7 +27,7 @@ docker run --rm -it $$registry$$python:3.14-debian13 sh
 You get this error message:
 
 ```none no-copy-button
-OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH
+OCI runtime create failed: runc create failed: unable to start container process: error during container init: exec: "sh": executable file not found in $PATH
 ```
 
 You cannot run any commands because this `runtime` variant image doesn't have a shell, a package manager or any extra system packages. We will illustrate this part in the next section.

@@ -97,7 +97,7 @@ docker run --rm -it dinner:runtime sh
 You get this error message:
 
 ```none no-copy-button
-OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH
+OCI runtime create failed: runc create failed: unable to start container process: error during container init: exec: "sh": executable file not found in $PATH
 ```
 
 You cannot run any commands because this `runtime` variant image doesn't have a shell, a package manager or any extra system packages.
