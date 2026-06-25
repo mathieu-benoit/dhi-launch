@@ -8,6 +8,8 @@
 
 Throughout this lab you will use a repository containing a Restaurant reservation (`dinner`) application consisting of a basic Python app talking to a PostgreSQL database to demonstrate the use of Hardened Images.
 
+---
+
 First things to get started, please provide following registry URLs:
 
 ::variableDefinition[registry]{prompt="What is your Hardened Images Container Registry prefix?"}
@@ -16,15 +18,12 @@ First things to get started, please provide following registry URLs:
 
 ::variableDefinition[dockerhub]{prompt="What is your DockerHub remote repository URL ?"}
 
-Alternatively, if no customization are needed, you can set their value to their industry default:
- ::variableSetButton[Set default URLs]{variables="registry=dhi.io/,ghcr=ghcr.io,dockerhub=docker.io"}
-
 ---
 
-Configured registry URLs:
+If you run this lab locally, and not within the labspace environment, you will also need to clone the project locally:
 
-- Hardened Images Container registry URL: $$registry$$
-- GitHub Container Registry URL: $$ghcr$$
-- DockerHub URL: $$dockerhub$$
+```bash no-run-button no-copy-button
+git clone https://github.com/mathieu-benoit/dhi-launch
 
----
+cd dhi-launch/project
+```

@@ -4,7 +4,7 @@
 
 Change the base image in the `FROM` instruction in the :fileLink[Dockerfile]{path="Dockerfile" line=1} and save.
 
-```yaml
+```yaml no-copy-button
 FROM $$registry$$python:3.14-debian13-dev
 ```
 
@@ -15,13 +15,13 @@ FROM $$registry$$python:3.14-debian13-dev
 
 Build the updated image with the hardened `dev` variant:
 
-```bash
-docker build -t dinner:dev .
+```bash no-run-button no-copy-button
+podman build -t dinner:dev .
 ```
 
-Compare the CVEs between the initial image and the latest hardened `dev` image built locally:
+If you have Docker Scout, compare the CVEs between the initial image and the latest hardened `dev` image built locally:
 
-```bash
+```bash no-run-button no-copy-button
 docker scout compare \
     --ignore-unchanged \
     --to $$ghcr$$/mathieu-benoit/dinner:initial@sha256:a8b1c9e163a383400b018d5009b9323b08d25461c2ceba9ed03f4c8f32c3d960 \
@@ -37,15 +37,15 @@ See the number of CVEs, packages and size of the image just got improved:
 
 Try to run a shell with this hardened `dev` image built locally:
 
-```bash
-docker run --rm -it dinner:dev sh
+```bash no-run-button no-copy-button
+podman run --rm -it dinner:dev sh
 ```
 
 You can run some commands because this `dev` variant image has a shell, a package manager and extra system packages.
 
 Exit the opened shell:
 
-```bash
+```bash no-run-button no-copy-button
 exit
 ```
 
@@ -53,7 +53,7 @@ exit
 
 Update the :fileLink[Dockerfile]{path="Dockerfile"} with this content:
 
-```yaml save-as=Dockerfile
+```yaml no-copy-button
 FROM $$registry$$python:3.14-debian13-dev AS builder
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -71,13 +71,13 @@ EXPOSE 5000
 CMD ["python", "/app/app.py"]
 ```
 
-```bash
-docker build -t dinner:runtime .
+```bash no-run-button no-copy-button
+podman build -t dinner:runtime .
 ```
 
-Compare the CVEs between the `dev` and the `runtime` hardened images built locally:
+If you have Docker Scout, compare the CVEs between the `dev` and the `runtime` hardened images built locally:
 
-```bash
+```bash no-run-button no-copy-button
 docker scout compare --ignore-unchanged --to dinner:dev dinner:runtime
 ```
 
@@ -90,8 +90,8 @@ See the number of CVEs, packages and size of the image just got improved:
 
 Try to run a shell with this hardened `runtime` image built locally:
 
-```bash
-docker run --rm -it dinner:runtime sh
+```bash no-run-button no-copy-button
+podman run --rm -it dinner:runtime sh
 ```
 
 You get this error message:

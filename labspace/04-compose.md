@@ -4,7 +4,7 @@
 
 Change the db image in the :fileLink[compose.yaml]{path="compose.yaml" line=12} and save.
 
-```yaml
+```yaml no-copy-button
 image: $$registry$$postgres:18-debian13
 ```
 
@@ -16,8 +16,8 @@ image: $$registry$$postgres:18-debian13
 ## Run the application
 
 Run the application:
-```bash
-docker compose up -d --build
+```bash no-run-button no-copy-button
+podman compose up -d --build
 ```
 
 Go to the application in the browser: :tabLink[http://localhost:5001]{href="http://localhost:5001" title="App" id=app}.
@@ -26,9 +26,9 @@ Enter a reservation using the application to confirm that the application is wor
 
 ## Scan the PostgreSQL image
 
-Compare the CVEs between the initial PostgreSQL image and the hardened PostgreSQL image:
+If you have Docker Scout, compare the CVEs between the initial PostgreSQL image and the hardened PostgreSQL image:
 
-```bash
+```bash no-run-button no-copy-button
 docker scout compare --ignore-unchanged --to $$dockerhub$$/postgres:18 $$registry$$postgres:18-debian13
 ```
 
