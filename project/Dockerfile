@@ -4,7 +4,6 @@ FROM python:3.14
 WORKDIR /app
 
 # Copy requirements and install
-RUN pip install psycopg2-binary
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 

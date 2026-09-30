@@ -58,7 +58,6 @@ FROM $$registry$$python:3.14-debian13-dev AS builder
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app
-RUN pip install psycopg2-binary --target /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt --target /app
 
