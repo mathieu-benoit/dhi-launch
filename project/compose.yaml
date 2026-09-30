@@ -7,7 +7,7 @@ services:
       db:
        condition: service_healthy
     environment:
-      - DATABASE_URL=postgresql://postgres:mysecretpassword@db:5432/dinner_db
+      - DATABASE_URL=postgresql+psycopg://postgres:mysecretpassword@db:5432/dinner_db
   db:
     image: postgres:18
     ports:
