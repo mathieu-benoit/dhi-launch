@@ -47,5 +47,5 @@ docker scout compare \
 See the number of CVEs, packages and size of the image just got improved:
 - CVEs: -164
 - Packages: -74
-- Size (on disk): 34MB
+- Size (on disk): 82MB
 - Run-as: `root` --> `postgres`

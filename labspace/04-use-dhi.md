@@ -35,7 +35,7 @@ docker scout compare \
 See the number of CVEs, packages and size of the image just got improved:
 - CVEs: -491
 - Packages: -311
-- Size (on disk): -373MB
+- Size (on disk): -135MB
 - Run-as: `root`
 
 ## Test the "shell" variant

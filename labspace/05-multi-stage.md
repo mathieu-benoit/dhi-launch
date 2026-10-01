@@ -1,6 +1,6 @@
 # Multi-stage build
 
-In this section you will optimize the final base image by using the `distroless` variant of the DHI Python image. And see even more benefits with it!
+In this section you will optimize the final base image by using the runtime (i.e. `distroless`) variant of the DHI Python image. And see even more benefits with it to safely run in Production!
 
 ## Update the Dockerfile to use a runtime base image
 
@@ -41,7 +41,7 @@ docker scout compare \
 See the number of CVEs, packages and size of the image just got improved:
 - CVEs: -16
 - Packages: -75
-- Size (on disk): -26MB
+- Size (on disk): -1.42GB
 - Run-as: `root` --> `nonroot`
 
 ## Test the "no shell" variant
