@@ -6,7 +6,7 @@ First things to get started, please provide the following registry URLs:
 
 ::variableDefinition[ghcr]{prompt="What is your GitHub Container Registry (ghcr.io) remote repository URL?"}
 
-::variableDefinition[dockerhub]{prompt="What is your DockerHub remote repository URL ?"}
+::variableDefinition[dockerhub]{prompt="What is your DockerHub remote repository URL (this is just for the public PostgreSQL image)?"}
 
 Alternatively, if no customization are needed, you can set their value to their industry default:
  ::variableSetButton[Set default URLs]{variables="registry=dhi.io/,ghcr=ghcr.io,dockerhub=docker.io"}

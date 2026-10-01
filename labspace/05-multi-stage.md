@@ -1,5 +1,7 @@
 # Multi-stage build
 
+In this section you will optimize the final base image by using the `distroless` variant of the DHI Python image. And see even more benefits with it!
+
 ## Update the Dockerfile to use a runtime base image
 
 Update the :fileLink[Dockerfile]{path="Dockerfile"} with this content:

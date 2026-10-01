@@ -1,4 +1,6 @@
-# Compose
+# Docker Compose
+
+In this section you will see how you use a DHI PostgreSQL image in your Docker Compose file.
 
 ## Modify the Docker Compose file to use the PostgreSQL image
 

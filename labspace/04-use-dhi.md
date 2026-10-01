@@ -1,5 +1,7 @@
 # Use DHI
 
+In this section you will replace the public Python image used in the `FROM` instruction of the `Dockerfile` by the DHI Python `-dev` variant. And see already great benefits with it!
+
 ## Update the Dockerfile to use an hardened `dev` base image
 
 Change the base image in the `FROM` instruction in the :fileLink[Dockerfile]{path="Dockerfile" line=1} and save.
@@ -49,6 +51,8 @@ You can run some commands because this `dev` variant image has a shell, a packag
 ```bash
 whomai
 cat /etc/os-release
+pip --version
+apt --version
 ```
 
 Exit the opened shell:

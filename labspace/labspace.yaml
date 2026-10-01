@@ -18,7 +18,7 @@ sections:
     contentPath: 04-use-dhi.md
   - title: Multi-stage build
     contentPath: 05-multi-stage.md
-  - title: Compose
+  - title: Docker Compose
     contentPath: 06-compose.md
   - title: Conclusion
     contentPath: 07-conclusion.md
