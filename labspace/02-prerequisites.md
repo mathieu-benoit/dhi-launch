@@ -1,6 +1,6 @@
 # Prerequisites
 
-First things to get started, please provide following registry URLs:
+First things to get started, please provide the following registry URLs:
 
 ::variableDefinition[registry]{prompt="What is your Hardened Images Container Registry prefix?"}
 
