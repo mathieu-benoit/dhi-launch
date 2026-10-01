@@ -24,14 +24,17 @@ Compare the CVEs between the initial image and the latest hardened `dev` image b
 ```bash
 docker scout compare \
     --ignore-unchanged \
-    --to $$ghcr$$/mathieu-benoit/dinner:initial@sha256:a8b1c9e163a383400b018d5009b9323b08d25461c2ceba9ed03f4c8f32c3d960 \
+    --to $$ghcr$$/mathieu-benoit/dinner:initial \
     dinner:dev
 ```
 
+![](images/scout-compare-initial-dev.png)
+
 See the number of CVEs, packages and size of the image just got improved:
-- CVEs: -232
-- Packages: -367
-- Size (on disk): -1443MB
+- CVEs: -491
+- Packages: -311
+- Size (on disk): -373MB
+- Run-as: `root`
 
 ## Test the "shell" variant
 
@@ -42,6 +45,11 @@ docker run --rm -it dinner:dev sh
 ```
 
 You can run some commands because this `dev` variant image has a shell, a package manager and extra system packages.
+
+```bash
+whomai
+cat /etc/os-release
+```
 
 Exit the opened shell:
 
@@ -77,13 +85,19 @@ docker build -t dinner:runtime .
 Compare the CVEs between the `dev` and the `runtime` hardened images built locally:
 
 ```bash
-docker scout compare --ignore-unchanged --to dinner:dev dinner:runtime
+docker scout compare \
+    --ignore-unchanged \
+    --to dinner:dev \
+    dinner:runtime
 ```
+
+![](images/scout-compare-dev-runtime.png)
 
 See the number of CVEs, packages and size of the image just got improved:
 - CVEs: -16
-- Packages: -57
-- Size (on disk): -92MB
+- Packages: -75
+- Size (on disk): -26MB
+- Run-as: `root` --> `nonroot`
 
 ## Test the "no shell" variant
 

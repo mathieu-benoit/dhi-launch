@@ -20,6 +20,11 @@ Run the application:
 docker compose up -d --build
 ```
 
+Check that the containers are running successfully:
+```bash
+docker ps
+```
+
 Go to the application in the browser: :tabLink[http://localhost:5001]{href="http://localhost:5001" title="App" id=app}.
 
 Enter a reservation using the application to confirm that the application is working.
@@ -29,10 +34,16 @@ Enter a reservation using the application to confirm that the application is wor
 Compare the CVEs between the initial PostgreSQL image and the hardened PostgreSQL image:
 
 ```bash
-docker scout compare --ignore-unchanged --to $$dockerhub$$/postgres:18 $$registry$$postgres:18-debian13
+docker scout compare \
+    --ignore-unchanged \
+    --to $$dockerhub$$/postgres:18 \
+    $$registry$$postgres:18-debian13
 ```
 
+![](images/scout-compare-postgres.png)
+
 See the number of CVEs, packages and size of the image just got improved:
-- CVEs: -44
-- Packages: -67
-- Size (on disk): 99MB
+- CVEs: -164
+- Packages: -74
+- Size (on disk): 34MB
+- Run-as: `root` --> `postgres`
