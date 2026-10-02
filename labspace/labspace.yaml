@@ -12,16 +12,16 @@ sections:
     contentPath: 01-introduction.md
   - title: Prerequisites
     contentPath: 02-prerequisites.md
-  - title: Pull & Run
-    contentPath: 03-pull-run.md
   - title: Use DHI
-    contentPath: 04-use-dhi.md
+    contentPath: 03-use-dhi.md
   - title: Multi-stage build
-    contentPath: 05-multi-stage.md
+    contentPath: 04-multi-stage.md
   - title: Docker Compose
-    contentPath: 06-compose.md
+    contentPath: 05-compose.md
   - title: Conclusion
-    contentPath: 07-conclusion.md
+    contentPath: 06-conclusion.md
+  - title: More tests
+    contentPath: 07-more-tests.md
 
 # Services are used to add default tabs in the Labspace interface.
 # The IDE will always be present as a service, but you can add additional services as needed.
