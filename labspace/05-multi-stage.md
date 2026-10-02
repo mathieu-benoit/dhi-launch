@@ -32,16 +32,16 @@ Compare the CVEs between the `dev` and the `runtime` hardened images built local
 ```bash
 docker scout compare \
     --ignore-unchanged \
-    --to dinner:dev \
-    dinner:runtime
+    --to local://dinner:dev \
+    local://dinner:runtime
 ```
 
 ![](images/scout-compare-dev-runtime.png)
 
-See the number of CVEs, packages and size of the image just got improved:
-- CVEs: -16
+✅ See the number of CVEs, packages and size of the image just got improved:
+- CVEs: -39
 - Packages: -75
-- Size (on disk): -1.42GB
+- Size (on disk): -112 MB
 - Run-as: `root` --> `nonroot`
 
 ## Test the "no shell" variant

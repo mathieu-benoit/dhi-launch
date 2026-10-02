@@ -38,14 +38,14 @@ Compare the CVEs between the initial PostgreSQL image and the hardened PostgreSQ
 ```bash
 docker scout compare \
     --ignore-unchanged \
-    --to $$dockerhub$$/postgres:18 \
-    $$registry$$postgres:18-debian13
+    --to registry://$$dockerhub$$/postgres:18 \
+    registry://$$registry$$postgres:18-debian13
 ```
 
 ![](images/scout-compare-postgres.png)
 
-See the number of CVEs, packages and size of the image just got improved:
-- CVEs: -164
+✅ See the number of CVEs, packages and size of the image just got improved:
+- CVEs: -115
 - Packages: -74
-- Size (on disk): 82MB
+- Size (on disk): 82 MB
 - Run-as: `root` --> `postgres`

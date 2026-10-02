@@ -1,5 +1,7 @@
 # Prerequisites
 
+## Container registry prefixes
+
 First things to get started, please provide the following registry URLs:
 
 ::variableDefinition[registry]{prompt="What is your Hardened Images Container Registry prefix?"}
@@ -20,3 +22,15 @@ Configured registry URLs:
 - DockerHub URL: $$dockerhub$$
 
 ---
+
+## Docker login for Docker Scout
+
+Even if you are using your own private container registry (assuming not Docker Hub), you will need to run this command below because this labspace use Docker Scout to continuously scan the container images:
+```bash
+docker login
+```
+
+You should land to this message:
+```none no-copy-button
+Login Succeeded
+```

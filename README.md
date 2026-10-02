@@ -2,12 +2,12 @@
 
 👋 Welcome to the Hardened Images Launch lab!
 
-> A repository containing a Restaurant reservation (`dinner`) application consisting of a basic Python app talking to a PostgreSQL database to demonstrate the use of Hardened Images.
+> A repository containing a Restaurant reservation (`dinner`) application consisting of a basic Python app talking to a PostgreSQL database to demonstrate the use of your own Hardened Images and their benefits for your users.
 
 During this lab, you will learn to do the following:
 - Pull & Run Hardened Images
 - Do Multi-stage build with Hardened Images
-- Scan Hardened Images
+- Scan continuously with Docker Scout
 - Use Compose with Hardened Images
 
 ## Run this Labspace
@@ -17,6 +17,8 @@ You can run this Labspace in its latest version from anywhere (if you have Docke
 ```bash
 docker compose -f oci://ghcr.io/mathieu-benoit/labspace-dhi-launch:latest up
 ```
+
+And then open the labspace in your web browser: http://localhost:3030
 
 ## Contribute to this Labspace
 

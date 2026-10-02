@@ -26,16 +26,16 @@ Compare the CVEs between the initial image and the latest hardened `dev` image b
 ```bash
 docker scout compare \
     --ignore-unchanged \
-    --to $$ghcr$$/mathieu-benoit/dinner:initial \
-    dinner:dev
+    --to registry://$$ghcr$$/mathieu-benoit/dinner:initial \
+    local://dinner:dev
 ```
 
 ![](images/scout-compare-initial-dev.png)
 
-See the number of CVEs, packages and size of the image just got improved:
-- CVEs: -491
-- Packages: -311
-- Size (on disk): -135MB
+✅ See the number of CVEs, packages and size of the image just got improved:
+- CVEs: -271
+- Packages: -328
+- Size (on disk): -1.43 GB
 - Run-as: `root`
 
 ## Test the "shell" variant
