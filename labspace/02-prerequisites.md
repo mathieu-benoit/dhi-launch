@@ -4,9 +4,9 @@
 
 First things to get started, please provide the following registry URLs:
 
-::variableDefinition[registry]{prompt="What is your Hardened Images Container Registry prefix?"}
+::variableDefinition[registry]{prompt="What is your Hardened Images Container Registry prefix (this is for all the DHI images in your own private registry)?"}
 
-::variableDefinition[ghcr]{prompt="What is your GitHub Container Registry (ghcr.io) remote repository URL?"}
+::variableDefinition[ghcr]{prompt="What is your GitHub Container Registry (ghcr.io) remote repository URL (this is only for the pre-built dinner:initial image)?"}
 
 ::variableDefinition[dockerhub]{prompt="What is your DockerHub remote repository URL (this is just for the public PostgreSQL image)?"}
 
