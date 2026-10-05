@@ -12,9 +12,9 @@ Here are the benefits illustrated with the Python container image:
 
 | | Default Python |  DHI Python | |
 |-|--------------------|----------------|-|
-| CVEs | 12C 88H 84M 267L 93? | 6H 8M 22L 1? | -507 |
+| CVEs | 1C 35H 33M 219L 27? | 9H 7M 12L | -287 |
 | Size (on disk) | 1.71 GB | 153 MB | -1.56 GB |
-| Number of packages | 492 | 106 | -386 |
+| Number of packages | 510 | 107 | -403 |
 | Run-as | `root` | `nonroot` | |
 | Package manager | Yes | No | |
 | Shell | Yes | No | |

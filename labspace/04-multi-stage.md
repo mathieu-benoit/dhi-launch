@@ -24,7 +24,7 @@ CMD ["python", "/app/app.py"]
 ```
 
 ```bash
-docker build -t dinner:runtime .
+docker build --pull -t dinner:runtime .
 ```
 
 Compare the CVEs between the `dev` and the `runtime` hardened images built locally:
@@ -39,7 +39,7 @@ docker scout compare \
 ![](images/scout-compare-dev-runtime.png)
 
 ✅ See the number of CVEs, packages and size of the image just got improved:
-- CVEs: -39
+- CVEs: -16
 - Packages: -75
 - Size (on disk): -112 MB
 - Run-as: `root` --> `nonroot`

@@ -18,7 +18,7 @@ You can run this Labspace in its latest version from anywhere (if you have Docke
 docker compose -f oci://ghcr.io/mathieu-benoit/labspace-dhi-launch:latest up
 ```
 
-And then open the labspace in your web browser: http://localhost:3030
+And then open the labspace in your web browser: http://localhost:3030.
 
 ## Contribute to this Labspace
 
@@ -35,3 +35,5 @@ On Windows with PowerShell:
 ```bash
 $Env:CONTENT_PATH = (Get-Location).Path; docker compose up --watch
 ```
+
+And then open the labspace in your web browser: http://localhost:3030.

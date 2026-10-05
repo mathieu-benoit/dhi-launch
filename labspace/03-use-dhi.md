@@ -18,7 +18,7 @@ FROM $$registry$$python:3.14-debian13-dev
 Build the updated image with the hardened `dev` variant:
 
 ```bash
-docker build -t dinner:dev .
+docker build --pull -t dinner:dev .
 ```
 
 Compare the CVEs between the initial image and the latest hardened `dev` image built locally:
