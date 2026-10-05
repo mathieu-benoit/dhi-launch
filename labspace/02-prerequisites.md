@@ -23,7 +23,9 @@ Configured registry URLs:
 
 ---
 
-## Docker login for Docker Scout
+## Docker login
+
+## For Docker Scout
 
 Even if you are using your own private container registry (assuming not Docker Hub), you will need to run this command below because this labspace use Docker Scout to continuously scan the container images:
 ```bash
@@ -33,4 +35,11 @@ docker login
 You should land to this message:
 ```none no-copy-button
 Login Succeeded
+```
+
+## For dhi.io
+
+If your Hardened Images Container registry URL (value you set: $$registry$$) is dhi.io, you should also run this command:
+```bash
+docker login dhi.io
 ```
