@@ -49,7 +49,7 @@ docker run --rm -it dinner:dev sh
 You can run some commands because this `dev` variant image has a shell, a package manager and extra system packages.
 
 ```bash
-whomai
+whoami
 cat /etc/os-release
 pip --version
 apt --version
