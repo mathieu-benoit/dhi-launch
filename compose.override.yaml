@@ -3,6 +3,8 @@ services:
     environment:
       PROJECT_CLONE_URL: https://github.com/mathieu-benoit/dhi-launch
 
+  workspace:
+    image: dockersamples/labspace-workspace-base:v0.31.0
   # workspace:
   #   # Override the default image if desired
   #   # More details - https://github.com/dockersamples/labspace-infra/blob/main/docs/configuration.md#overriding-the-workspace-image
