@@ -36,7 +36,7 @@ sbx settings set kit.allowedSources '["docker.io/","dhi.io/","ghcr.io/mathieu-be
 Then, from an empty folder (`sbx run` mounts the current folder as the workspace):
 
 ```bash
-sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:0.1.4 --kit ghcr.io/mathieu-benoit/dhi-launch/kit:0.1.0 -p 8085:8085 -p 5001:5001 --name dhi-launch -d
+sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:0.1.4 --kit ghcr.io/mathieu-benoit/labsbx-dhi-launch:0.1.0 -p 8085:8085 -p 5001:5001 --name dhi-launch -d
 ```
 
 Then open the interface on the host port that `sbx ports dhi-launch` lists for sandbox port `3030` (add `-p 3030:3030` to the command to always use http://localhost:3030).
@@ -54,7 +54,7 @@ sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:0.1.4 --kit . -p 80
 
 Run from the clone, the workspace's own `labspace/` wins over the kit's copy, and `project/` is the folder on your machine, so your edits land in the clone. Add `--kit-arg devMode=true` to see markdown edits live.
 
-The content kit is published by [.github/workflows/publish-kit.yaml](.github/workflows/publish-kit.yaml): push a `v<version>` tag matching `version:` in [dhi-launch.yaml](dhi-launch.yaml) (for example `git tag v0.1.0 && git push origin v0.1.0`) to publish `ghcr.io/mathieu-benoit/dhi-launch/kit:<version>`, or run the workflow manually on `main` to publish `:edge`. New GHCR packages can start out private: make the package public after the first publish.
+The content kit is published by [.github/workflows/publish-kit.yaml](.github/workflows/publish-kit.yaml) on every push to `main`, as `ghcr.io/mathieu-benoit/labsbx-dhi-launch`: `:latest` and `:sha-<short>` follow `main`, and `:<version>` (from `version:` in [dhi-launch.yaml](dhi-launch.yaml)) is published the first time that version reaches `main` and never overwritten, so bump `version:` to release a new one. Pull requests only build and validate the kit. New GHCR packages can start out private: make the package public after the first publish.
 
 ## Contribute to this Labspace
 

@@ -1,12 +1,14 @@
 name: publish-kit
 
 # Builds this lab's Docker Sandboxes content kit (dhi-launch.yaml) and publishes
-# it to ghcr.io/<owner>/<repo>/kit. It runs with the Labspace kit from
+# it to ghcr.io/<owner>/labsbx-dhi-launch. It runs with the Labspace kit from
 # https://github.com/mathieu-benoit/labsbxes (see the README).
 #
-#   pull request          nothing pushed: built to a local OCI layout, checked with kit-tck
-#   push of a v* tag      :<version from dhi-launch.yaml> and :latest (an existing version is skipped)
-#   manual run on main    :edge and :sha-<short> (elsewhere: build only)
+#   pull request                nothing pushed: built to a local OCI layout, checked with kit-tck
+#   push to main / manual run   :latest and :sha-<short>, plus :<version from dhi-launch.yaml>
+#   on main                     the first time that version is published (a published version
+#                               is never overwritten: bump version: to release a new one)
+#   manual run elsewhere        build only
 
 on:
   pull_request:
@@ -18,7 +20,8 @@ on:
       - ".dockerignore"
       - ".github/workflows/publish-kit.yaml"
   push:
-    tags: ["v*"]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -40,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write # push to ghcr.io/<owner>/<repo>/kit
+      packages: write # push to ghcr.io/<owner>/labsbx-dhi-launch
     steps:
       - uses: actions/checkout@v7
         with:
@@ -61,31 +64,16 @@ jobs:
             exit 1
           fi
 
-          image="${REGISTRY}/${GITHUB_REPOSITORY,,}/kit"
+          image="${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/labsbx-dhi-launch"
           publish=false
-          tags="${image}:ci-build"
-          primary="${image}:ci-build"
-          if [ "$EVENT" != "pull_request" ]; then
-            if [[ "$REF" == refs/tags/v* ]]; then
-              if [ "${REF#refs/tags/v}" != "$version" ]; then
-                echo "::error::Release tag ${REF#refs/tags/} does not match version ${version} in ${DESCRIPTOR}."
-                exit 1
-              fi
-              publish=true
-              tags="${image}:${version},${image}:latest"
-              primary="${image}:${version}"
-            elif [ "$REF" = "refs/heads/main" ]; then
-              publish=true
-              tags="${image}:edge,${image}:sha-${GITHUB_SHA::7}"
-              primary="${image}:edge"
-            fi
+          if [ "$EVENT" != "pull_request" ] && [ "$REF" = "refs/heads/main" ]; then
+            publish=true
           fi
 
           {
+            echo "image=$image"
             echo "version=$version"
             echo "publish=$publish"
-            echo "tags=$tags"
-            echo "primary=$primary"
           } >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-qemu-action@v4
@@ -104,23 +92,36 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Skip a version that is already published
-        id: exists
-        if: steps.meta.outputs.publish == 'true' && startsWith(github.ref, 'refs/tags/v')
+      # :latest and :sha-<short> move with main; :<version> is immutable, so it
+      # is only added the first time that version is published.
+      - name: Resolve tags
+        id: tags
         env:
-          PRIMARY: ${{ steps.meta.outputs.primary }}
+          PUBLISH: ${{ steps.meta.outputs.publish }}
+          IMAGE: ${{ steps.meta.outputs.image }}
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          if docker buildx imagetools inspect "$PRIMARY" > /dev/null 2>&1; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "::notice::$PRIMARY already exists; not republishing. Bump version: in $DESCRIPTOR to release a new one."
+          set -euo pipefail
+          if [ "$PUBLISH" != "true" ]; then
+            tags="${IMAGE}:ci-build"
+            primary="${IMAGE}:ci-build"
           else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            tags="${IMAGE}:latest,${IMAGE}:sha-${GITHUB_SHA::7}"
+            primary="${IMAGE}:sha-${GITHUB_SHA::7}"
+            if docker buildx imagetools inspect "${IMAGE}:${VERSION}" > /dev/null 2>&1; then
+              echo "::notice::${IMAGE}:${VERSION} already exists; publishing :latest and :sha-${GITHUB_SHA::7} only. Bump version: in $DESCRIPTOR to release a new version."
+            else
+              tags="${IMAGE}:${VERSION},${tags}"
+            fi
           fi
+          {
+            echo "tags=$tags"
+            echo "primary=$primary"
+          } >> "$GITHUB_OUTPUT"
 
       # The `# syntax=docker/sandbox-kit:3` line of the descriptor makes BuildKit
       # run the Kit frontend, which validates the descriptor and attaches it.
       - name: Build${{ steps.meta.outputs.publish == 'true' && ' and push' || '' }}
-        if: steps.exists.outputs.skip != 'true'
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -129,11 +130,10 @@ jobs:
           provenance: mode=min
           sbom: false
           push: ${{ steps.meta.outputs.publish == 'true' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.tags.outputs.tags }}
           outputs: ${{ steps.meta.outputs.publish != 'true' && format('type=oci,dest={0}/kit-layout,tar=false', runner.temp) || '' }}
 
       - name: Install kit-tck
-        if: steps.exists.outputs.skip != 'true'
         run: |
           set -euo pipefail
           base="https://github.com/docker/sandbox-kit-spec/releases/download/v${KIT_TCK_VERSION}"
@@ -147,10 +147,9 @@ jobs:
           echo "$RUNNER_TEMP/kit-tck" >> "$GITHUB_PATH"
 
       - name: Validate the kit with kit-tck
-        if: steps.exists.outputs.skip != 'true'
         env:
           PUBLISH: ${{ steps.meta.outputs.publish }}
-          PRIMARY: ${{ steps.meta.outputs.primary }}
+          PRIMARY: ${{ steps.tags.outputs.primary }}
         run: |
           if [ "$PUBLISH" = "true" ]; then
             kit-tck validate "$PRIMARY"
