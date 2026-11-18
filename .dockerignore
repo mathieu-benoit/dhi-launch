@@ -1,0 +1,7 @@
+# Keep the build context of the sandbox kit (dhi-launch.yaml) to the lab's content.
+# The dinner image is built from project/, which has its own context.
+*
+!labspace
+!project
+!dhi-launch.yaml
+!dhi-launch.dockerfile

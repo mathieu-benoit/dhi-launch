@@ -1,0 +1,159 @@
+name: publish-kit
+
+# Builds this lab's Docker Sandboxes content kit (dhi-launch.yaml) and publishes
+# it to ghcr.io/<owner>/<repo>/kit. It runs with the Labspace kit from
+# https://github.com/mathieu-benoit/labsbxes (see the README).
+#
+#   pull request          nothing pushed: built to a local OCI layout, checked with kit-tck
+#   push of a v* tag      :<version from dhi-launch.yaml> and :latest (an existing version is skipped)
+#   manual run on main    :edge and :sha-<short> (elsewhere: build only)
+
+on:
+  pull_request:
+    paths:
+      - "labspace/**"
+      - "project/**"
+      - "dhi-launch.yaml"
+      - "dhi-launch.dockerfile"
+      - ".dockerignore"
+      - ".github/workflows/publish-kit.yaml"
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-kit-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  DESCRIPTOR: dhi-launch.yaml
+  # kit-tck, the Sandbox Kit specification's conformance checker. Pinned, and
+  # verified against the release's checksums.txt before it runs.
+  KIT_TCK_VERSION: 3.0.0-m.12
+
+jobs:
+  kit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # push to ghcr.io/<owner>/<repo>/kit
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Resolve image name and tags
+        id: meta
+        env:
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+
+          # The descriptor is the version authority (top-level `version:` only).
+          version="$(sed -n 's/^version:[[:space:]]*"\{0,1\}\([^"[:space:]#]*\).*/\1/p' "$DESCRIPTOR" | head -n 1)"
+          if [ -z "$version" ]; then
+            echo "::error file=$DESCRIPTOR::no top-level version: found"
+            exit 1
+          fi
+
+          image="${REGISTRY}/${GITHUB_REPOSITORY,,}/kit"
+          publish=false
+          tags="${image}:ci-build"
+          primary="${image}:ci-build"
+          if [ "$EVENT" != "pull_request" ]; then
+            if [[ "$REF" == refs/tags/v* ]]; then
+              if [ "${REF#refs/tags/v}" != "$version" ]; then
+                echo "::error::Release tag ${REF#refs/tags/} does not match version ${version} in ${DESCRIPTOR}."
+                exit 1
+              fi
+              publish=true
+              tags="${image}:${version},${image}:latest"
+              primary="${image}:${version}"
+            elif [ "$REF" = "refs/heads/main" ]; then
+              publish=true
+              tags="${image}:edge,${image}:sha-${GITHUB_SHA::7}"
+              primary="${image}:edge"
+            fi
+          fi
+
+          {
+            echo "version=$version"
+            echo "publish=$publish"
+            echo "tags=$tags"
+            echo "primary=$primary"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
+
+      # The docker-container driver keeps the manifest annotations that carry
+      # the kit descriptor.
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Log in to ghcr.io
+        if: steps.meta.outputs.publish == 'true'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Skip a version that is already published
+        id: exists
+        if: steps.meta.outputs.publish == 'true' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          PRIMARY: ${{ steps.meta.outputs.primary }}
+        run: |
+          if docker buildx imagetools inspect "$PRIMARY" > /dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::$PRIMARY already exists; not republishing. Bump version: in $DESCRIPTOR to release a new one."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The `# syntax=docker/sandbox-kit:3` line of the descriptor makes BuildKit
+      # run the Kit frontend, which validates the descriptor and attaches it.
+      - name: Build${{ steps.meta.outputs.publish == 'true' && ' and push' || '' }}
+        if: steps.exists.outputs.skip != 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ${{ env.DESCRIPTOR }}
+          platforms: linux/amd64,linux/arm64
+          provenance: mode=min
+          sbom: false
+          push: ${{ steps.meta.outputs.publish == 'true' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          outputs: ${{ steps.meta.outputs.publish != 'true' && format('type=oci,dest={0}/kit-layout,tar=false', runner.temp) || '' }}
+
+      - name: Install kit-tck
+        if: steps.exists.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          base="https://github.com/docker/sandbox-kit-spec/releases/download/v${KIT_TCK_VERSION}"
+          archive="kit-tck_${KIT_TCK_VERSION}_linux_amd64.tar.gz"
+          mkdir -p "$RUNNER_TEMP/kit-tck"
+          cd "$RUNNER_TEMP/kit-tck"
+          curl -fsSL -O "$base/$archive"
+          curl -fsSL -O "$base/checksums.txt"
+          grep " ${archive}\$" checksums.txt | sha256sum -c -
+          tar -xzf "$archive"
+          echo "$RUNNER_TEMP/kit-tck" >> "$GITHUB_PATH"
+
+      - name: Validate the kit with kit-tck
+        if: steps.exists.outputs.skip != 'true'
+        env:
+          PUBLISH: ${{ steps.meta.outputs.publish }}
+          PRIMARY: ${{ steps.meta.outputs.primary }}
+        run: |
+          if [ "$PUBLISH" = "true" ]; then
+            kit-tck validate "$PRIMARY"
+          else
+            kit-tck validate --layout "$RUNNER_TEMP/kit-layout" ci-build
+          fi
