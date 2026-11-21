@@ -24,9 +24,12 @@ version: "0.1.0"
 # a published GHCR package to this repository.
 sourceUrl: https://github.com/mathieu-benoit/dhi-launch
 
-# The Labspace kit provides `labspace`. Composing this kit without it fails at
-# resolution instead of producing a sandbox with files and nothing to show them.
-requires: ["labspace >= 0.1.0"]
+# The Labspace kit provides `labspace`, and the Docker Scout kit
+# (docker.io/sbx/scout-cli) provides `docker-scout`: the CLI plugin, signed in
+# to Scout with the host's sbx login, and network access to the Scout APIs.
+# Composing this kit without both fails at resolution instead of producing a
+# sandbox where the lab can't run.
+requires: ["labspace >= 0.1.0", "docker-scout >= 1.0.0"]
 
 # One lab per sandbox: a second content kit provides the same name, and the
 # runtime refuses the composition.
@@ -43,9 +46,9 @@ capabilities:
       transport: tcp
 
   # The Labspace kit only allows Docker Hub pulls and Open VSX. This lab also
-  # logs in to Docker, pulls hardened images, the pre-built dinner:initial image
-  # from GHCR, installs Python packages during `docker build`, and calls Docker
-  # Scout.
+  # logs in to Docker, pulls hardened images and the pre-built dinner:initial
+  # image from GHCR, and installs Python packages during `docker build`. Docker
+  # Scout's own access comes from the Docker Scout kit.
   - type: com.docker.sandbox/network-policy@1
     config:
       runtime:
@@ -56,8 +59,6 @@ capabilities:
           - index.docker.io
           # Docker Hardened Images registry (when the registry prefix is dhi.io/).
           - dhi.io
-          # Docker Scout (`docker scout compare`).
-          - api.scout.docker.com
           # The pre-built ghcr.io/mathieu-benoit/dinner:initial image.
           - ghcr.io
           - pkg-containers.githubusercontent.com
