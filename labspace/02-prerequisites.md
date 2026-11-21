@@ -37,6 +37,9 @@ You should land to this message:
 Login Succeeded
 ```
 
+> [!NOTE]
+> If you are running this lab in a Docker Sandbox (`sbx`) with the Docker Scout kit, you can skip this step: `docker scout` is already signed in with your host's `sbx login`.
+
 ## For dhi.io
 
 If your Hardened Images Container registry URL (value you set: $$registry$$) is dhi.io, you should also run this command:
