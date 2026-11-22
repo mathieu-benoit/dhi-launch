@@ -28,6 +28,8 @@ You can also run this lab with [`sbx`](https://docs.docker.com/ai/sandboxes/) in
 - the **Docker Scout kit** [`docker.io/sbx/scout-cli`](https://hub.docker.com/r/sbx/scout-cli), which installs the `docker scout` CLI plugin and signs it in to Docker Scout with your host's `sbx login`;
 - the **content kit** of this repository (in [sbx-kit/](sbx-kit)), which carries `labspace/` and `project/`, the app port (`5001`) and the network access the lab needs (Docker login, `dhi.io`, PyPI). It requires the other two kits: `sbx` refuses to start it without them.
 
+They are also published together as one reference: the **kit set** [labsbx-dhi-launch.yaml](labsbx-dhi-launch.yaml) merges the three into a single kit, `ghcr.io/mathieu-benoit/labsbx-dhi-launch` (see [Kit sets](https://docs.docker.com/ai/sandboxes/customize/author/kit-sets/)).
+
 By default `sbx` only installs kits from `docker.io/` and `dhi.io/`, so first allow the GHCR namespace:
 
 ```bash
@@ -37,8 +39,16 @@ sbx settings set kit.allowedSources '["docker.io/","dhi.io/","ghcr.io/mathieu-be
 Then, from an empty folder (`sbx run` mounts the current folder as the workspace):
 
 ```bash
+sbx run shell --kit ghcr.io/mathieu-benoit/labsbx-dhi-launch:latest -p 8085:8085 -p 5001:5001 --name dhi-launch -d
+```
+
+This is the same as passing the three kits yourself:
+
+```bash
 sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:latest --kit docker.io/sbx/scout-cli:latest --kit ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin:latest -p 8085:8085 -p 5001:5001 --name dhi-launch -d
 ```
+
+The set pins the exact version of each kit it was built with, so it changes only when it is republished; passing the three `:latest` kits picks up each one's newest version.
 
 Then open the interface on the host port that `sbx ports dhi-launch` lists for sandbox port `3030` (add `-p 3030:3030` to the command to always use http://localhost:3030).
 
@@ -55,7 +65,7 @@ sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:latest --kit docker
 
 `sbx` builds `./sbx-kit` on its own, so that local kit carries no lab content: the Labspace kit serves the clone's own `labspace/`, and `project/` is the folder on your machine, so your edits land in the clone. Run it from the clone, not from an empty folder. Add `--kit-arg devMode=true` to see markdown edits live.
 
-The content kit is published by [.github/workflows/publish-kit.yaml](.github/workflows/publish-kit.yaml) on every push to `main`, as `ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin`: `:latest` and `:sha-<short>` follow `main`, and `:<version>` (from `version:` in [sbx-kit/labsbx-dhi-launch-mixin.yaml](sbx-kit/labsbx-dhi-launch-mixin.yaml)) is published the first time that version reaches `main` and never overwritten, so bump `version:` to release a new one. It is built from the repository root (`docker buildx build . -f sbx-kit/labsbx-dhi-launch-mixin.yaml`), which is how the published kit carries `labspace/` and `project/`. Pull requests only build and validate the kit. New GHCR packages can start out private: make the package public after the first publish.
+Both kits are published by [.github/workflows/publish-kit.yaml](.github/workflows/publish-kit.yaml) on every push to `main`: first the content kit, `ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin`, then the kit set, `ghcr.io/mathieu-benoit/labsbx-dhi-launch`, so the set always includes the content kit just published (and the newest Labspace and Docker Scout kits). For each, `:latest` and `:sha-<short>` follow `main`, and `:<version>` (from `version:` in [sbx-kit/labsbx-dhi-launch-mixin.yaml](sbx-kit/labsbx-dhi-launch-mixin.yaml) and [labsbx-dhi-launch.yaml](labsbx-dhi-launch.yaml)) is published the first time that version reaches `main` and never overwritten, so bump `version:` to release a new one. The content kit is built from the repository root (`docker buildx build . -f sbx-kit/labsbx-dhi-launch-mixin.yaml`), which is how the published kit carries `labspace/` and `project/`. Pull requests only build and validate the kits. New GHCR packages can start out private: make the packages public after the first publish.
 
 ## Contribute to this Labspace
 

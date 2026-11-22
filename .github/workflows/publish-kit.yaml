@@ -1,14 +1,20 @@
 name: publish-kit
 
-# Builds this lab's Docker Sandboxes content kit (sbx-kit/labsbx-dhi-launch-mixin.yaml) and publishes
-# it to ghcr.io/<owner>/labsbx-dhi-launch-mixin. It runs with the Labspace kit from
-# https://github.com/mathieu-benoit/labsbxes (see the README).
+# Builds and publishes this lab's Docker Sandboxes kits (see the README):
 #
-#   pull request                nothing pushed: built to a local OCI layout, checked with kit-tck
-#   push to main / manual run   :latest and :sha-<short>, plus :<version from labsbx-dhi-launch-mixin.yaml>
-#   on main                     the first time that version is published (a published version
-#                               is never overwritten: bump version: to release a new one)
-#   manual run elsewhere        build only
+#   mixin   sbx-kit/labsbx-dhi-launch-mixin.yaml   the lab's content kit
+#                                                  -> ghcr.io/<owner>/labsbx-dhi-launch-mixin
+#   set     labsbx-dhi-launch.yaml                 a kit set merging the Labspace kit, the Docker
+#                                                  Scout kit and the content kit into one reference
+#                                                  -> ghcr.io/<owner>/labsbx-dhi-launch
+#
+# The set runs after the mixin: its members are registry references, pinned by
+# digest at build, so building it right after the mixin is published is what
+# puts the new content in the set.
+#
+# Each kit is built by build-kit.yaml: on pull requests nothing is pushed (the
+# kit is built to a local OCI layout and checked with kit-tck); on main it is
+# published as :latest, :sha-<short> and, the first time, :<version>.
 
 on:
   pull_request:
@@ -16,7 +22,9 @@ on:
       - "labspace/**"
       - "project/**"
       - "sbx-kit/**"
+      - "labsbx-dhi-launch.yaml"
       - ".github/workflows/publish-kit.yaml"
+      - ".github/workflows/build-kit.yaml"
   push:
     branches:
       - main
@@ -29,129 +37,24 @@ concurrency:
   group: publish-kit-${{ github.ref }}
   cancel-in-progress: false
 
-env:
-  REGISTRY: ghcr.io
-  DESCRIPTOR: sbx-kit/labsbx-dhi-launch-mixin.yaml
-  # kit-tck, the Sandbox Kit specification's conformance checker. Pinned, and
-  # verified against the release's checksums.txt before it runs.
-  KIT_TCK_VERSION: 3.0.0-m.12
-
 jobs:
-  kit:
-    runs-on: ubuntu-latest
+  mixin:
+    uses: ./.github/workflows/build-kit.yaml
     permissions:
       contents: read
-      packages: write # push to ghcr.io/<owner>/labsbx-dhi-launch-mixin
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
+      packages: write
+    with:
+      name: labsbx-dhi-launch-mixin
+      descriptor: sbx-kit/labsbx-dhi-launch-mixin.yaml
+      # The repository root, so the kit carries labspace/ and project/.
+      context: .
 
-      - name: Resolve image name and tags
-        id: meta
-        env:
-          EVENT: ${{ github.event_name }}
-          REF: ${{ github.ref }}
-        run: |
-          set -euo pipefail
-
-          # The descriptor is the version authority (top-level `version:` only).
-          version="$(sed -n 's/^version:[[:space:]]*"\{0,1\}\([^"[:space:]#]*\).*/\1/p' "$DESCRIPTOR" | head -n 1)"
-          if [ -z "$version" ]; then
-            echo "::error file=$DESCRIPTOR::no top-level version: found"
-            exit 1
-          fi
-
-          image="${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/labsbx-dhi-launch-mixin"
-          publish=false
-          if [ "$EVENT" != "pull_request" ] && [ "$REF" = "refs/heads/main" ]; then
-            publish=true
-          fi
-
-          {
-            echo "image=$image"
-            echo "version=$version"
-            echo "publish=$publish"
-          } >> "$GITHUB_OUTPUT"
-
-      - uses: docker/setup-qemu-action@v4
-        with:
-          platforms: arm64
-
-      # The docker-container driver keeps the manifest annotations that carry
-      # the kit descriptor.
-      - uses: docker/setup-buildx-action@v4
-
-      - name: Log in to ghcr.io
-        if: steps.meta.outputs.publish == 'true'
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # :latest and :sha-<short> move with main; :<version> is immutable, so it
-      # is only added the first time that version is published.
-      - name: Resolve tags
-        id: tags
-        env:
-          PUBLISH: ${{ steps.meta.outputs.publish }}
-          IMAGE: ${{ steps.meta.outputs.image }}
-          VERSION: ${{ steps.meta.outputs.version }}
-        run: |
-          set -euo pipefail
-          if [ "$PUBLISH" != "true" ]; then
-            tags="${IMAGE}:ci-build"
-            primary="${IMAGE}:ci-build"
-          else
-            tags="${IMAGE}:latest,${IMAGE}:sha-${GITHUB_SHA::7}"
-            primary="${IMAGE}:sha-${GITHUB_SHA::7}"
-            if docker buildx imagetools inspect "${IMAGE}:${VERSION}" > /dev/null 2>&1; then
-              echo "::notice::${IMAGE}:${VERSION} already exists; publishing :latest and :sha-${GITHUB_SHA::7} only. Bump version: in $DESCRIPTOR to release a new version."
-            else
-              tags="${IMAGE}:${VERSION},${tags}"
-            fi
-          fi
-          {
-            echo "tags=$tags"
-            echo "primary=$primary"
-          } >> "$GITHUB_OUTPUT"
-
-      # The `# syntax=docker/sandbox-kit:3` line of the descriptor makes BuildKit
-      # run the Kit frontend, which validates the descriptor and attaches it.
-      - name: Build${{ steps.meta.outputs.publish == 'true' && ' and push' || '' }}
-        uses: docker/build-push-action@v7
-        with:
-          # The repository root, so the kit carries labspace/ and project/.
-          context: .
-          file: ${{ env.DESCRIPTOR }}
-          platforms: linux/amd64,linux/arm64
-          provenance: mode=min
-          sbom: false
-          push: ${{ steps.meta.outputs.publish == 'true' }}
-          tags: ${{ steps.tags.outputs.tags }}
-          outputs: ${{ steps.meta.outputs.publish != 'true' && format('type=oci,dest={0}/kit-layout,tar=false', runner.temp) || '' }}
-
-      - name: Install kit-tck
-        run: |
-          set -euo pipefail
-          base="https://github.com/docker/sandbox-kit-spec/releases/download/v${KIT_TCK_VERSION}"
-          archive="kit-tck_${KIT_TCK_VERSION}_linux_amd64.tar.gz"
-          mkdir -p "$RUNNER_TEMP/kit-tck"
-          cd "$RUNNER_TEMP/kit-tck"
-          curl -fsSL -O "$base/$archive"
-          curl -fsSL -O "$base/checksums.txt"
-          grep " ${archive}\$" checksums.txt | sha256sum -c -
-          tar -xzf "$archive"
-          echo "$RUNNER_TEMP/kit-tck" >> "$GITHUB_PATH"
-
-      - name: Validate the kit with kit-tck
-        env:
-          PUBLISH: ${{ steps.meta.outputs.publish }}
-          PRIMARY: ${{ steps.tags.outputs.primary }}
-        run: |
-          if [ "$PUBLISH" = "true" ]; then
-            kit-tck validate "$PRIMARY"
-          else
-            kit-tck validate --layout "$RUNNER_TEMP/kit-layout" ci-build
-          fi
+  set:
+    needs: mixin
+    uses: ./.github/workflows/build-kit.yaml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      name: labsbx-dhi-launch
+      descriptor: labsbx-dhi-launch.yaml
