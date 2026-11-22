@@ -33,25 +33,3 @@ jobs:
         uses: dockersamples/publish-labspace-action@v2.0.0
         with:
           target_repo: ${{ env.DOCKERHUB_REPO }}
-  build-and-push-initial-container:
-    uses: docker/github-builder/.github/workflows/build.yml@v1
-    permissions:
-      id-token: write
-      packages: write
-    with:
-      output: image
-      push: true
-      platforms: linux/amd64,linux/arm64
-      sbom: true
-      cache: true
-      sign: false
-      context: project/
-      meta-images: |
-        ghcr.io/${{ github.repository_owner }}/dinner
-      meta-tags: |
-        initial
-    secrets:
-      registry-auths: |
-        - registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}

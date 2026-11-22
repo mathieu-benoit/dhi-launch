@@ -26,7 +26,7 @@ You can also run this lab with [`sbx`](https://docs.docker.com/ai/sandboxes/) in
 
 - the **Labspace kit** from [mathieu-benoit/labsbxes](https://github.com/mathieu-benoit/labsbxes), which runs the interface and the IDE;
 - the **Docker Scout kit** [`docker.io/sbx/scout-cli`](https://hub.docker.com/r/sbx/scout-cli), which installs the `docker scout` CLI plugin and signs it in to Docker Scout with your host's `sbx login`;
-- the **content kit** of this repository (in [sbx-kit/](sbx-kit)), which carries `labspace/` and `project/`, the app port (`5001`) and the network access the lab needs (Docker login, `dhi.io`, `ghcr.io`, PyPI). It requires the other two kits: `sbx` refuses to start it without them.
+- the **content kit** of this repository (in [sbx-kit/](sbx-kit)), which carries `labspace/` and `project/`, the app port (`5001`) and the network access the lab needs (Docker login, `dhi.io`, PyPI). It requires the other two kits: `sbx` refuses to start it without them.
 
 By default `sbx` only installs kits from `docker.io/` and `dhi.io/`, so first allow the GHCR namespace:
 
