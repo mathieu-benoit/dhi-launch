@@ -1,6 +1,18 @@
 # Use DHI
 
-In this section you will replace the public Python image used in the `FROM` instruction of the `Dockerfile` by the DHI Python `-dev` variant. And see already great benefits with it!
+In this section you will first build the application with its initial `Dockerfile`, then replace the public Python image used in the `FROM` instruction by the DHI Python `-dev` variant. And see already great benefits with it!
+
+## Build the initial image
+
+Look at the initial :fileLink[Dockerfile]{path="Dockerfile" line=1}: it uses the public `python:3.14` image as its base image.
+
+Build the initial image with this `Dockerfile`:
+
+```bash
+docker build --pull -t dinner:initial .
+```
+
+This `dinner:initial` image is the baseline you will compare the hardened images against.
 
 ## Update the Dockerfile to use an hardened `dev` base image
 
@@ -21,12 +33,12 @@ Build the updated image with the hardened `dev` variant:
 docker build --pull -t dinner:dev .
 ```
 
-Compare the CVEs between the initial image and the latest hardened `dev` image built locally:
+Compare the CVEs between the initial image and the hardened `dev` image, both built locally:
 
 ```bash
 docker scout compare \
     --ignore-unchanged \
-    --to registry://$$ghcr$$/mathieu-benoit/dinner:initial \
+    --to local://dinner:initial \
     local://dinner:dev
 ```
 
