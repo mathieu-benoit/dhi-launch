@@ -37,7 +37,7 @@ sbx settings set kit.allowedSources '["docker.io/","dhi.io/","ghcr.io/mathieu-be
 Then, from an empty folder (`sbx run` mounts the current folder as the workspace):
 
 ```bash
-sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:0.1.4 --kit docker.io/sbx/scout-cli:1.30.0-0 --kit ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin:0.1.0 -p 8085:8085 -p 5001:5001 --name dhi-launch -d
+sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:latest --kit docker.io/sbx/scout-cli:latest --kit ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin:latest -p 8085:8085 -p 5001:5001 --name dhi-launch -d
 ```
 
 Then open the interface on the host port that `sbx ports dhi-launch` lists for sandbox port `3030` (add `-p 3030:3030` to the command to always use http://localhost:3030).
@@ -50,7 +50,7 @@ Then open the interface on the host port that `sbx ports dhi-launch` lists for s
 From a clone of this repository, you can run the local version of the content kit instead of the published one:
 
 ```bash
-sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:0.1.4 --kit docker.io/sbx/scout-cli:1.30.0-0 --kit ./sbx-kit -p 8085:8085 -p 5001:5001 --name dhi-launch -d
+sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:latest --kit docker.io/sbx/scout-cli:latest --kit ./sbx-kit -p 8085:8085 -p 5001:5001 --name dhi-launch -d
 ```
 
 `sbx` builds `./sbx-kit` on its own, so that local kit carries no lab content: the Labspace kit serves the clone's own `labspace/`, and `project/` is the folder on your machine, so your edits land in the clone. Run it from the clone, not from an empty folder. Add `--kit-arg devMode=true` to see markdown edits live.

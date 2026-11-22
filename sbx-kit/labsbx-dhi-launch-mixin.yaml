@@ -6,8 +6,9 @@
 # by https://github.com/mathieu-benoit/labsbxes.
 #
 #   sbx run shell \
-#     --kit ghcr.io/mathieu-benoit/labsbxes/labspace:0.1.4 \
-#     --kit ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin:0.1.0 \
+#     --kit ghcr.io/mathieu-benoit/labsbxes/labspace:latest \
+#     --kit docker.io/sbx/scout-cli:latest \
+#     --kit ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin:latest \
 #     -p 8085:8085 -p 5001:5001 --name dhi-launch
 schemaVersion: "3"
 kind: mixin
