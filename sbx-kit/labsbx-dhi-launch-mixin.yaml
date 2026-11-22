@@ -1,0 +1,67 @@
+# syntax=docker/sandbox-kit:3
+#
+# The "Hardened Images Launch" lab as a content kit for Docker Sandboxes. It
+# carries the lab's labspace/ and project/ folders (and the network access the
+# lab needs); everything that runs them comes from the Labspace kit published
+# by https://github.com/mathieu-benoit/labsbxes.
+#
+#   sbx run shell \
+#     --kit ghcr.io/mathieu-benoit/labsbxes/labspace:0.1.4 \
+#     --kit ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin:0.1.0 \
+#     -p 8085:8085 -p 5001:5001 --name dhi-launch
+schemaVersion: "3"
+kind: mixin
+
+displayName: Hardened Images Launch (content)
+description: >-
+  The "Hardened Images Launch" lab: pull and run Docker Hardened Images, do a
+  multi-stage build with them, scan with Docker Scout and use them with Compose,
+  to be run by the Labspace kit.
+
+version: "0.1.0"
+
+# Becomes the org.opencontainers.image.source annotation, which is what links
+# a published GHCR package to this repository.
+sourceUrl: https://github.com/mathieu-benoit/dhi-launch
+
+# The Labspace kit provides `labspace`, and the Docker Scout kit
+# (docker.io/sbx/scout-cli) provides `docker-scout`: the CLI plugin, signed in
+# to Scout with the host's sbx login, and network access to the Scout APIs.
+# Composing this kit without both fails at resolution instead of producing a
+# sandbox where the lab can't run.
+requires: ["labspace >= 0.1.0", "docker-scout >= 1.0.0"]
+
+# One lab per sandbox: a second content kit provides the same name, and the
+# runtime refuses the composition.
+provides: ["labspace-content@0.1.0"]
+
+capabilities:
+  # The lab runs the dinner app with `docker compose up` (web: 5001:5000) and
+  # opens it in the "App" tab at http://localhost:5001. sbx picks the host port
+  # (sbx ports <name>); -p 5001:5001 pins it for the tab.
+  - type: com.docker.sandbox/port@1
+    config:
+      name: dinner-app
+      container: 5001
+      transport: tcp
+
+  # The Labspace kit only allows Docker Hub pulls and Open VSX. This lab also
+  # logs in to Docker, pulls hardened images and the pre-built dinner:initial
+  # image from GHCR, and installs Python packages during `docker build`. Docker
+  # Scout's own access comes from the Docker Scout kit.
+  - type: com.docker.sandbox/network-policy@1
+    config:
+      runtime:
+        allow:
+          # `docker login` (device code flow) and Docker Hub APIs.
+          - login.docker.com
+          - hub.docker.com
+          - index.docker.io
+          # Docker Hardened Images registry (when the registry prefix is dhi.io/).
+          - dhi.io
+          # The pre-built ghcr.io/mathieu-benoit/dinner:initial image.
+          - ghcr.io
+          - pkg-containers.githubusercontent.com
+          # `pip install -r requirements.txt` in the Dockerfile.
+          - pypi.org
+          - files.pythonhosted.org

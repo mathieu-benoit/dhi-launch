@@ -25,6 +25,9 @@ Configured registry URLs:
 
 ## Docker login
 
+> [!NOTE]
+> If you are running this lab in a Docker Sandbox (`sbx`), you can skip this entire "Docker login" section. The sandbox uses your host's `sbx login`: the Docker Scout kit signs `docker scout` in with it, and pulls from Docker Hub and `dhi.io` are authenticated through the sandbox's proxy, so no `docker login` is needed inside the sandbox. If your registry prefix points to another private registry, store its credentials on your host with `sbx secret set --registry`, as explained in [Registry credentials](https://docs.docker.com/ai/sandboxes/configuration/credentials/#registry-credentials).
+
 ## For Docker Scout
 
 Even if you are using your own private container registry (assuming not Docker Hub), you will need to run this command below because this labspace use Docker Scout to continuously scan the container images:
