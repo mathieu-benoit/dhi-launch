@@ -47,9 +47,9 @@ capabilities:
       transport: tcp
 
   # The Labspace kit only allows Docker Hub pulls and Open VSX. This lab also
-  # logs in to Docker, pulls hardened images and the pre-built dinner:initial
-  # image from GHCR, and installs Python packages during `docker build`. Docker
-  # Scout's own access comes from the Docker Scout kit.
+  # logs in to Docker, pulls hardened images, and installs Python packages
+  # during `docker build`. Docker Scout's own access comes from the Docker
+  # Scout kit.
   - type: com.docker.sandbox/network-policy@1
     config:
       runtime:
@@ -60,9 +60,6 @@ capabilities:
           - index.docker.io
           # Docker Hardened Images registry (when the registry prefix is dhi.io/).
           - dhi.io
-          # The pre-built ghcr.io/mathieu-benoit/dinner:initial image.
-          - ghcr.io
-          - pkg-containers.githubusercontent.com
           # `pip install -r requirements.txt` in the Dockerfile.
           - pypi.org
           - files.pythonhosted.org
