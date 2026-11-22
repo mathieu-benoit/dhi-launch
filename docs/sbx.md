@@ -53,6 +53,16 @@ sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:latest --kit docker
 
 `sbx` builds `./sbx-kit` on its own, so that local kit carries no lab content: the Labspace kit serves the clone's own `labspace/`, and `project/` is the folder on your machine, so your edits land in the clone. Run it from the clone, not from an empty folder. Add `--kit-arg devMode=true` to see markdown edits live.
 
+## Tear down the lab
+
+When you are done, delete the sandbox:
+
+```bash
+sbx rm dhi-launch
+```
+
+This removes everything the lab created: the containers, images, volumes and networks of the sandbox's private Docker engine, and your changes to the lab's project. When you ran from a clone with `./sbx-kit`, your edits to `project/` are in the clone and stay there.
+
 ## How the kits are published
 
 Both kits are published by [.github/workflows/publish-kit.yaml](../.github/workflows/publish-kit.yaml) on every push to `main`: first the content kit, `ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin`, then the kit set, `ghcr.io/mathieu-benoit/labsbx-dhi-launch`, so the set always includes the content kit just published (and the newest `shell`, Labspace and Docker Scout kits).

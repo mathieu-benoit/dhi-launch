@@ -36,6 +36,22 @@ Then open the Labspace in your web browser: http://localhost:3030.
 
 The stack is defined by [compose.yaml](../compose.yaml), which includes the labspace-infra development stack, and [compose.override.yaml](../compose.override.yaml), which points it at this repository and sets the workspace image.
 
+## Tear down the lab
+
+When you are done, stop the Labspace and remove its containers, networks and volumes. Run the command that matches how you started it.
+
+The published lab:
+
+```bash
+docker compose -f oci://ghcr.io/mathieu-benoit/labspace-dhi-launch:latest down --volumes
+```
+
+From your clone:
+
+```bash
+docker compose down --volumes
+```
+
 ## How it is published
 
 [.github/workflows/publish-labspace.yaml](../.github/workflows/publish-labspace.yaml) publishes the Labspace to `ghcr.io/mathieu-benoit/labspace-dhi-launch` on every push to `main`, with the [publish-labspace-action](https://github.com/dockersamples/publish-labspace-action).
