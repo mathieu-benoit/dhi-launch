@@ -26,7 +26,7 @@ You can also run this lab with [`sbx`](https://docs.docker.com/ai/sandboxes/) in
 
 - the **Labspace kit** from [mathieu-benoit/labsbxes](https://github.com/mathieu-benoit/labsbxes), which runs the interface and the IDE;
 - the **Docker Scout kit** [`docker.io/sbx/scout-cli`](https://hub.docker.com/r/sbx/scout-cli), which installs the `docker scout` CLI plugin and signs it in to Docker Scout with your host's `sbx login`;
-- the **content kit** of this repository ([labsbx-dhi-launch-mixin.yaml](labsbx-dhi-launch-mixin.yaml) and [labsbx-dhi-launch-mixin.dockerfile](labsbx-dhi-launch-mixin.dockerfile)), which carries `labspace/` and `project/`, the app port (`5001`) and the network access the lab needs (Docker login, `dhi.io`, `ghcr.io`, PyPI). It requires the other two kits: `sbx` refuses to start it without them.
+- the **content kit** of this repository (in [sbx-kit/](sbx-kit)), which carries `labspace/` and `project/`, the app port (`5001`) and the network access the lab needs (Docker login, `dhi.io`, `ghcr.io`, PyPI). It requires the other two kits: `sbx` refuses to start it without them.
 
 By default `sbx` only installs kits from `docker.io/` and `dhi.io/`, so first allow the GHCR namespace:
 
@@ -50,12 +50,12 @@ Then open the interface on the host port that `sbx ports dhi-launch` lists for s
 From a clone of this repository, you can run the local version of the content kit instead of the published one:
 
 ```bash
-sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:0.1.4 --kit docker.io/sbx/scout-cli:1.30.0-0 --kit . -p 8085:8085 -p 5001:5001 --name dhi-launch -d
+sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:0.1.4 --kit docker.io/sbx/scout-cli:1.30.0-0 --kit ./sbx-kit -p 8085:8085 -p 5001:5001 --name dhi-launch -d
 ```
 
-Run from the clone, the workspace's own `labspace/` wins over the kit's copy, and `project/` is the folder on your machine, so your edits land in the clone. Add `--kit-arg devMode=true` to see markdown edits live.
+`sbx` builds `./sbx-kit` on its own, so that local kit carries no lab content: the Labspace kit serves the clone's own `labspace/`, and `project/` is the folder on your machine, so your edits land in the clone. Run it from the clone, not from an empty folder. Add `--kit-arg devMode=true` to see markdown edits live.
 
-The content kit is published by [.github/workflows/publish-kit.yaml](.github/workflows/publish-kit.yaml) on every push to `main`, as `ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin`: `:latest` and `:sha-<short>` follow `main`, and `:<version>` (from `version:` in [labsbx-dhi-launch-mixin.yaml](labsbx-dhi-launch-mixin.yaml)) is published the first time that version reaches `main` and never overwritten, so bump `version:` to release a new one. Pull requests only build and validate the kit. New GHCR packages can start out private: make the package public after the first publish.
+The content kit is published by [.github/workflows/publish-kit.yaml](.github/workflows/publish-kit.yaml) on every push to `main`, as `ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin`: `:latest` and `:sha-<short>` follow `main`, and `:<version>` (from `version:` in [sbx-kit/labsbx-dhi-launch-mixin.yaml](sbx-kit/labsbx-dhi-launch-mixin.yaml)) is published the first time that version reaches `main` and never overwritten, so bump `version:` to release a new one. It is built from the repository root (`docker buildx build . -f sbx-kit/labsbx-dhi-launch-mixin.yaml`), which is how the published kit carries `labspace/` and `project/`. Pull requests only build and validate the kit. New GHCR packages can start out private: make the package public after the first publish.
 
 ## Contribute to this Labspace
 

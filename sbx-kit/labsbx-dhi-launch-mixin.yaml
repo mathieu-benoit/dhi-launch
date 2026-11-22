@@ -7,7 +7,7 @@
 #
 #   sbx run shell \
 #     --kit ghcr.io/mathieu-benoit/labsbxes/labspace:0.1.4 \
-#     --kit ./ \
+#     --kit ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin:0.1.0 \
 #     -p 8085:8085 -p 5001:5001 --name dhi-launch
 schemaVersion: "3"
 kind: mixin

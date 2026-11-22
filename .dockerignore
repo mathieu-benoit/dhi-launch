@@ -1,7 +1,0 @@
-# Keep the build context of the sandbox kit (labsbx-dhi-launch-mixin.yaml) to the lab's content.
-# The dinner image is built from project/, which has its own context.
-*
-!labspace
-!project
-!labsbx-dhi-launch-mixin.yaml
-!labsbx-dhi-launch-mixin.dockerfile

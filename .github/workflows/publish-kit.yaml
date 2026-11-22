@@ -1,6 +1,6 @@
 name: publish-kit
 
-# Builds this lab's Docker Sandboxes content kit (labsbx-dhi-launch-mixin.yaml) and publishes
+# Builds this lab's Docker Sandboxes content kit (sbx-kit/labsbx-dhi-launch-mixin.yaml) and publishes
 # it to ghcr.io/<owner>/labsbx-dhi-launch-mixin. It runs with the Labspace kit from
 # https://github.com/mathieu-benoit/labsbxes (see the README).
 #
@@ -15,9 +15,7 @@ on:
     paths:
       - "labspace/**"
       - "project/**"
-      - "labsbx-dhi-launch-mixin.yaml"
-      - "labsbx-dhi-launch-mixin.dockerfile"
-      - ".dockerignore"
+      - "sbx-kit/**"
       - ".github/workflows/publish-kit.yaml"
   push:
     branches:
@@ -33,7 +31,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  DESCRIPTOR: labsbx-dhi-launch-mixin.yaml
+  DESCRIPTOR: sbx-kit/labsbx-dhi-launch-mixin.yaml
   # kit-tck, the Sandbox Kit specification's conformance checker. Pinned, and
   # verified against the release's checksums.txt before it runs.
   KIT_TCK_VERSION: 3.0.0-m.12
@@ -124,6 +122,7 @@ jobs:
       - name: Build${{ steps.meta.outputs.publish == 'true' && ' and push' || '' }}
         uses: docker/build-push-action@v7
         with:
+          # The repository root, so the kit carries labspace/ and project/.
           context: .
           file: ${{ env.DESCRIPTOR }}
           platforms: linux/amd64,linux/arm64
