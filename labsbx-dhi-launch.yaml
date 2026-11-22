@@ -1,10 +1,10 @@
 # syntax=docker/sandbox-kit:3
 #
 # The "Hardened Images Launch" lab as one kit reference: a kit set that merges
-# the three kits the lab runs with. It publishes as a single mixin, so learners
-# only pass one --kit:
+# the `shell` workload with the three kits the lab runs with. It publishes as a
+# workload, so learners run it directly, without `shell` or any --kit:
 #
-#   sbx run shell --kit ghcr.io/mathieu-benoit/labsbx-dhi-launch:latest \
+#   sbx run ghcr.io/mathieu-benoit/labsbx-dhi-launch:latest \
 #     -p 8085:8085 -p 5001:5001 --name dhi-launch
 #
 # The members must be published registry references. The build records each
@@ -16,9 +16,9 @@ kind: set
 
 displayName: Hardened Images Launch (Labspace on Docker Sandboxes)
 description: >-
-  The "Hardened Images Launch" lab, ready to run: the Labspace kit (interface
-  and IDE), the Docker Scout kit, and the lab's content kit, merged into one
-  mixin for the `shell` agent.
+  The "Hardened Images Launch" lab, ready to run: the `shell` sandbox (bash and
+  a Docker engine), the Labspace kit (interface and IDE), the Docker Scout kit,
+  and the lab's content kit, merged into one workload.
 
 version: "0.1.0"
 
@@ -27,6 +27,9 @@ version: "0.1.0"
 sourceUrl: https://github.com/mathieu-benoit/dhi-launch
 
 kits:
+  # The workload: a plain shell sandbox on DHI with a Docker engine. The only
+  # workload in the set (a set may have at most one).
+  - ref: docker.io/sbx/shell:latest
   # Labspace interface and VS Code (code-server). Provides `labspace`.
   - ref: ghcr.io/mathieu-benoit/labsbxes/labspace:latest
   # Docker Scout CLI plugin, signed in with the host's sbx login. Provides `docker-scout`.

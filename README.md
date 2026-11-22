@@ -28,7 +28,7 @@ You can also run this lab with [`sbx`](https://docs.docker.com/ai/sandboxes/) in
 - the **Docker Scout kit** [`docker.io/sbx/scout-cli`](https://hub.docker.com/r/sbx/scout-cli), which installs the `docker scout` CLI plugin and signs it in to Docker Scout with your host's `sbx login`;
 - the **content kit** of this repository (in [sbx-kit/](sbx-kit)), which carries `labspace/` and `project/`, the app port (`5001`) and the network access the lab needs (Docker login, `dhi.io`, PyPI). It requires the other two kits: `sbx` refuses to start it without them.
 
-They are also published together as one reference: the **kit set** [labsbx-dhi-launch.yaml](labsbx-dhi-launch.yaml) merges the three into a single kit, `ghcr.io/mathieu-benoit/labsbx-dhi-launch` (see [Kit sets](https://docs.docker.com/ai/sandboxes/customize/author/kit-sets/)).
+They are also published together as one reference: the **kit set** [labsbx-dhi-launch.yaml](labsbx-dhi-launch.yaml) merges the three with the `shell` sandbox into a single workload kit, `ghcr.io/mathieu-benoit/labsbx-dhi-launch` (see [Kit sets](https://docs.docker.com/ai/sandboxes/customize/author/kit-sets/)).
 
 By default `sbx` only installs kits from `docker.io/` and `dhi.io/`, so first allow the GHCR namespace:
 
@@ -39,7 +39,7 @@ sbx settings set kit.allowedSources '["docker.io/","dhi.io/","ghcr.io/mathieu-be
 Then, from an empty folder (`sbx run` mounts the current folder as the workspace):
 
 ```bash
-sbx run shell --kit ghcr.io/mathieu-benoit/labsbx-dhi-launch:latest -p 8085:8085 -p 5001:5001 --name dhi-launch -d
+sbx run ghcr.io/mathieu-benoit/labsbx-dhi-launch:latest -p 8085:8085 -p 5001:5001 --name dhi-launch -d
 ```
 
 This is the same as passing the three kits yourself:
@@ -48,7 +48,7 @@ This is the same as passing the three kits yourself:
 sbx run shell --kit ghcr.io/mathieu-benoit/labsbxes/labspace:latest --kit docker.io/sbx/scout-cli:latest --kit ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin:latest -p 8085:8085 -p 5001:5001 --name dhi-launch -d
 ```
 
-The set pins the exact version of each kit it was built with, so it changes only when it is republished; passing the three `:latest` kits picks up each one's newest version.
+The set pins the exact version of each kit it was built with, including `shell`, so it changes only when it is republished; passing the three `:latest` kits onto `shell` picks up each one's newest version. Use that form too to add the lab to another agent with a Docker engine (for example `sbx run claude --kit ...`): the set already carries a workload, so it can't be layered onto another one.
 
 Then open the interface on the host port that `sbx ports dhi-launch` lists for sandbox port `3030` (add `-p 3030:3030` to the command to always use http://localhost:3030).
 
