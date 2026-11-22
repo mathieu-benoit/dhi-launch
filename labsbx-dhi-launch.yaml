@@ -1,0 +1,38 @@
+# syntax=docker/sandbox-kit:3
+#
+# The "Hardened Images Launch" lab as one kit reference: a kit set that merges
+# the `shell` workload with the three kits the lab runs with. It publishes as a
+# workload, so learners run it directly, without `shell` or any --kit:
+#
+#   sbx run ghcr.io/mathieu-benoit/labsbx-dhi-launch:latest \
+#     -p 8085:8085 -p 5001:5001 --name dhi-launch
+#
+# The members must be published registry references. The build records each
+# member's digest, so a published set never changes: a new version of a member
+# reaches learners when the set is rebuilt, which the publish-kit workflow does
+# on every push to main, right after it publishes the content kit.
+schemaVersion: "3"
+kind: set
+
+displayName: Hardened Images Launch (Labspace on Docker Sandboxes)
+description: >-
+  The "Hardened Images Launch" lab, ready to run: the `shell` sandbox (bash and
+  a Docker engine), the Labspace kit (interface and IDE), the Docker Scout kit,
+  and the lab's content kit, merged into one workload.
+
+version: "0.1.0"
+
+# Becomes the org.opencontainers.image.source annotation, which is what links
+# the published GHCR package to this repository.
+sourceUrl: https://github.com/mathieu-benoit/dhi-launch
+
+kits:
+  # The workload: a plain shell sandbox on DHI with a Docker engine. The only
+  # workload in the set (a set may have at most one).
+  - ref: docker.io/sbx/shell:latest
+  # Labspace interface and VS Code (code-server). Provides `labspace`.
+  - ref: ghcr.io/mathieu-benoit/labsbxes/labspace:latest
+  # Docker Scout CLI plugin, signed in with the host's sbx login. Provides `docker-scout`.
+  - ref: docker.io/sbx/scout-cli:latest
+  # This lab's content (sbx-kit/), which requires the two kits above.
+  - ref: ghcr.io/mathieu-benoit/labsbx-dhi-launch-mixin:latest
