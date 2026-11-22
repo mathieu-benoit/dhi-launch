@@ -44,7 +44,7 @@ Then open the interface on the host port that `sbx ports dhi-launch` lists for s
 
 - `-p 8085:8085` is required: the interface embeds the IDE at `http://localhost:8085`.
 - `-p 5001:5001` is for the lab's "App" tab (`http://localhost:5001`).
-- `docker scout` is already signed in through your host's `sbx login`, so the lab's `docker login` for Docker Scout isn't needed. The `docker login dhi.io` step is still needed to pull hardened images; it runs inside the sandbox and stores credentials there, not on your machine.
+- The lab's "Docker login" section isn't needed: the sandbox uses your host's `sbx login` for Docker Scout and for pulls from Docker Hub and `dhi.io`. For another private registry, store its credentials on your host with `sbx secret set --registry` (see [Registry credentials](https://docs.docker.com/ai/sandboxes/configuration/credentials/#registry-credentials)).
 - Stop the lab with `sbx stop dhi-launch`, restart it with `sbx run --name dhi-launch -d`, delete it with `sbx rm dhi-launch`.
 
 From a clone of this repository, you can run the local version of the content kit instead of the published one:
