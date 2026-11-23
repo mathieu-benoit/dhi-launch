@@ -1,0 +1,525 @@
+version: "2.0"
+
+metadata:
+  id: dhi-launch
+  title: "Hardened Images Launch"
+  summary: "Build the dinner app on Docker Hardened Images, compare it with Docker Scout and run it with Compose, simulated in the browser."
+
+objectives:
+  - "Pull & Run Hardened Images"
+  - "Do Multi-stage build with Hardened Images"
+  - "Use Compose with Hardened Images"
+  - "Continuous scanning with Docker Scout"
+
+# In-memory state: the whole "where am I in the lab" model. Scenarios read it in
+# `when.state` and write it in `then.state`.
+state:
+  logged:
+    docker: false
+    dhi: false
+  dockerfile: initial         # initial (FROM python:3.14) -> dev (after the sed of "Use DHI")
+  images:                     # the dinner images built so far
+    initial: false
+    dev: false
+    runtime: false
+  shell: none                 # none, or dev while a shell runs in the dinner:dev container
+  compose:
+    dhi: false                # compose.yaml uses the DHI PostgreSQL image
+  stack:
+    up: false                 # the Compose stack is running
+    db: postgres:18           # the db service's image, as docker ps shows it
+
+settings:
+  pace:
+    pull: 900
+    build: 1200
+    scan: 1400
+
+defaults:
+  unmatched:
+    stderr:
+      - "This command isn't part of this lab: use the Run buttons of the instructions, or type their commands."
+    exit: 127
+
+# Figures used by the docker scout compare outputs, from the hands-on lab:
+#   dinner:initial  python:3.14                  1C 35H 33M 219L 27?   510 packages  1.71 GB  root
+#   dinner:dev      dhi python:3.14-debian13-dev 11H 12M 21L           182 packages  280 MB   root
+#   dinner:runtime  dhi python:3.14-debian13     9H 7M 12L             107 packages  168 MB   nonroot
+#   postgres:18                                  8C 38H 40M 74L 6?     205 packages  650 MB   root
+#   dhi postgres:18-debian13                     2L                    131 packages  568 MB   postgres
+
+scenarios:
+  # ---------------------------------------------------------------- Prerequisites
+
+  - id: docker-login-dhi
+    completes: dhi-login
+    when:
+      command: docker login
+      args:
+        0: dhi.io
+    then:
+      state:
+        logged.dhi: true
+      output:
+        - "Login Succeeded"
+
+  - id: docker-login
+    completes: docker-login
+    when:
+      command: docker login
+      args:
+        0: false
+    then:
+      state:
+        logged.docker: true
+      output:
+        - "Login Succeeded"
+
+  # ---------------------------------------------------------------- Use DHI
+
+  # The IDE edit of the hands-on lab, as a command. Gated on state: a `replace`
+  # whose `find` is missing is a hard error, so running it twice must not reach it.
+  - id: sed-dockerfile
+    completes: use-dhi-dev
+    when:
+      command: sed
+      args:
+        0: Dockerfile
+      state:
+        dockerfile: initial
+    then:
+      files:
+        - replace: Dockerfile
+          find: "FROM python:3.14"
+          with: "FROM dhi.io/python:3.14-debian13-dev"
+      state:
+        dockerfile: dev
+      output: []
+
+  - id: sed-dockerfile-done
+    when:
+      command: sed
+      args:
+        0: Dockerfile
+    then:
+      output: []
+
+  - id: build-initial
+    completes: build-initial
+    when:
+      command: docker build
+      args:
+        -t: "dinner:initial"
+      state:
+        dockerfile: initial
+    then:
+      state:
+        images.initial: true
+      output:
+        - "[+] Building 38.4s (11/11) FINISHED    docker:default"
+        - " => [internal] load build definition from Dockerfile"
+        - " => [internal] load metadata for docker.io/library/python:3.14"
+        - " => [internal] load .dockerignore"
+        - { text: " => [1/5] FROM docker.io/library/python:3.14@sha256:3b9c…", delay: pull }
+        - " => [internal] load build context"
+        - " => [2/5] WORKDIR /app"
+        - " => [3/5] COPY requirements.txt ."
+        - { text: " => [4/5] RUN pip install --no-cache-dir -r requirements.txt", delay: build }
+        - " => [5/5] COPY . ."
+        - " => exporting to image"
+        - " => => naming to docker.io/library/dinner:initial"
+
+  - id: build-dev
+    completes: build-dev
+    when:
+      command: docker build
+      args:
+        -t: "dinner:dev"
+      state:
+        dockerfile: dev
+    then:
+      state:
+        images.dev: true
+      output:
+        - "[+] Building 19.2s (11/11) FINISHED    docker:default"
+        - " => [internal] load build definition from Dockerfile"
+        - " => [internal] load metadata for dhi.io/python:3.14-debian13-dev"
+        - " => [internal] load .dockerignore"
+        - { text: " => [1/5] FROM dhi.io/python:3.14-debian13-dev@sha256:8e41…", delay: pull }
+        - " => [internal] load build context"
+        - " => [2/5] WORKDIR /app"
+        - " => [3/5] COPY requirements.txt ."
+        - { text: " => [4/5] RUN pip install --no-cache-dir -r requirements.txt", delay: build }
+        - " => [5/5] COPY . ."
+        - " => exporting to image"
+        - " => => naming to docker.io/library/dinner:dev"
+
+  # dinner:dev built before the Dockerfile was changed: still python:3.14.
+  - id: build-dev-error
+    when:
+      command: docker build
+      args:
+        -t: "dinner:dev"
+    then:
+      output:
+        - "[+] Building 2.1s (11/11) FINISHED    docker:default"
+        - " => [internal] load metadata for docker.io/library/python:3.14"
+        - " => CACHED [1/5] FROM docker.io/library/python:3.14@sha256:3b9c…"
+        - " => exporting to image"
+        - " => => naming to docker.io/library/dinner:dev"
+        - ""
+        - "# The Dockerfile still uses python:3.14: run the sed command of this section first, then build again."
+
+  - id: build-runtime
+    completes: build-runtime
+    when:
+      command: docker build
+      args:
+        -t: "dinner:runtime"
+    then:
+      state:
+        images.runtime: true
+      output:
+        - "[+] Building 21.7s (13/13) FINISHED    docker:default"
+        - " => [internal] load build definition from Dockerfile"
+        - " => [internal] load metadata for dhi.io/python:3.14-debian13"
+        - " => [internal] load metadata for dhi.io/python:3.14-debian13-dev"
+        - " => [internal] load .dockerignore"
+        - " => [builder 1/4] FROM dhi.io/python:3.14-debian13-dev@sha256:8e41…"
+        - { text: " => [runtime 1/3] FROM dhi.io/python:3.14-debian13@sha256:c07a…", delay: pull }
+        - " => [internal] load build context"
+        - " => [builder 2/4] WORKDIR /app"
+        - " => [builder 3/4] COPY requirements.txt ."
+        - { text: " => [builder 4/4] RUN pip install --no-cache-dir -r requirements.txt --target /app", delay: build }
+        - " => [runtime 2/3] COPY --from=builder /app /app"
+        - " => [runtime 3/3] COPY . /app"
+        - " => exporting to image"
+        - " => => naming to docker.io/library/dinner:runtime"
+
+  # Any other build: a rebuild of an image, or a tag the lab doesn't use.
+  - id: build-other
+    when:
+      command: docker build
+      args:
+        -t: { any: true }
+    then:
+      output:
+        - "[+] Building 3.2s (11/11) FINISHED    docker:default"
+        - " => [internal] load build definition from Dockerfile"
+        - " => CACHED [1/5] FROM …"
+        - " => exporting to image"
+        - " => => naming to docker.io/library/{{ args.t }}"
+
+  - id: compare-initial-dev
+    completes: compare-initial-dev
+    when:
+      command: docker scout compare
+      args:
+        --to: "local://dinner:initial"
+        0: "local://dinner:dev"
+      state:
+        images.initial: true
+        images.dev: true
+    then:
+      output:
+        - "    ✓ SBOM of image already cached, 182 packages indexed"
+        - { text: "    ✓ SBOM of image already cached, 510 packages indexed", delay: scan }
+        - ""
+        - "  ## Overview"
+        - ""
+        - "                      │ Analyzed Image              │ Comparison Image"
+        - "  ────────────────────┼─────────────────────────────┼─────────────────────────────"
+        - "    Target            │ local://dinner:dev          │ local://dinner:initial"
+        - "      platform        │ linux/amd64                 │ linux/amd64"
+        - "      vulnerabilities │ 0C 11H 12M 21L              │ 1C 35H 33M 219L 27?"
+        - "                      │ -1 -24 -21 -198 -27         │"
+        - "      size            │ 280 MB (-1.43 GB)           │ 1.71 GB"
+        - "      packages        │ 182 (-328)                  │ 510"
+        - "      user            │ root                        │ root"
+        - ""
+        - "  ## Packages and Vulnerabilities"
+        - ""
+        - "    (abridged: the packages removed and the CVEs they carried are listed here)"
+
+  - id: compare-dev-runtime
+    completes: compare-dev-runtime
+    when:
+      command: docker scout compare
+      args:
+        --to: "local://dinner:dev"
+        0: "local://dinner:runtime"
+      state:
+        images.dev: true
+        images.runtime: true
+    then:
+      output:
+        - "    ✓ SBOM of image already cached, 107 packages indexed"
+        - { text: "    ✓ SBOM of image already cached, 182 packages indexed", delay: scan }
+        - ""
+        - "  ## Overview"
+        - ""
+        - "                      │ Analyzed Image              │ Comparison Image"
+        - "  ────────────────────┼─────────────────────────────┼─────────────────────────────"
+        - "    Target            │ local://dinner:runtime      │ local://dinner:dev"
+        - "      platform        │ linux/amd64                 │ linux/amd64"
+        - "      vulnerabilities │ 0C 9H 7M 12L                │ 0C 11H 12M 21L"
+        - "                      │    -2 -5 -9                 │"
+        - "      size            │ 168 MB (-112 MB)            │ 280 MB"
+        - "      packages        │ 107 (-75)                   │ 182"
+        - "      user            │ nonroot                     │ root"
+        - ""
+        - "  ## Packages and Vulnerabilities"
+        - ""
+        - "    (abridged: the packages removed and the CVEs they carried are listed here)"
+
+  - id: compare-postgres
+    completes: compare-postgres
+    when:
+      command: docker scout compare
+      args:
+        --to: "registry://docker.io/postgres:18"
+        0: "registry://dhi.io/postgres:18-debian13"
+    then:
+      output:
+        - "    ✓ SBOM of image already cached, 131 packages indexed"
+        - { text: "    ✓ SBOM of image already cached, 205 packages indexed", delay: scan }
+        - ""
+        - "  ## Overview"
+        - ""
+        - "                      │ Analyzed Image                         │ Comparison Image"
+        - "  ────────────────────┼────────────────────────────────────────┼──────────────────────────────────"
+        - "    Target            │ registry://dhi.io/postgres:18-debian13 │ registry://docker.io/postgres:18"
+        - "      platform        │ linux/amd64                            │ linux/amd64"
+        - "      vulnerabilities │ 2L                                     │ 8C 38H 40M 74L 6?"
+        - "                      │ -8 -38 -40 -72 -6                      │"
+        - "      size            │ 568 MB (-82 MB)                        │ 650 MB"
+        - "      packages        │ 131 (-74)                              │ 205"
+        - "      user            │ postgres                               │ root"
+        - ""
+        - "  ## Packages and Vulnerabilities"
+        - ""
+        - "    (abridged: the packages removed and the CVEs they carried are listed here)"
+
+  # A comparison of an image not built yet.
+  - id: compare-not-built-error
+    when:
+      command: docker scout compare
+    then:
+      stderr:
+        - "# One of these images isn't built yet in this simulation: run the docker build commands above it first."
+      exit: 1
+
+  # docker run --rm -it <image> sh: the flag parser is greedy, so `-it` captures
+  # the image name and `sh` is the first positional.
+  - id: run-dev-shell
+    completes: shell-dev
+    when:
+      command: docker run
+      args:
+        -it: "dinner:dev"
+      state:
+        images.dev: true
+    then:
+      state:
+        shell: dev
+      output:
+        - "# You are now in a shell in the dinner:dev container. Type exit to leave it."
+
+  - id: run-runtime-shell
+    completes: shell-runtime
+    when:
+      command: docker run
+      args:
+        -it: "dinner:runtime"
+      state:
+        images.runtime: true
+    then:
+      stderr:
+        - "docker: Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: exec: \"sh\": executable file not found in $PATH"
+      exit: 127
+
+  - id: run-not-built-error
+    when:
+      command: docker run
+    then:
+      stderr:
+        - "# This image isn't built yet in this simulation: run its docker build command first."
+      exit: 125
+
+  # In the dinner:dev container's shell.
+  - id: shell-whoami
+    when:
+      command: whoami
+      state:
+        shell: dev
+    then:
+      output:
+        - "root"
+
+  - id: shell-os-release
+    when:
+      command: cat
+      args:
+        0: /etc/os-release
+      state:
+        shell: dev
+    then:
+      output:
+        - "PRETTY_NAME=\"Debian GNU/Linux 13 (trixie)\""
+        - "NAME=\"Debian GNU/Linux\""
+        - "VERSION_ID=\"13\""
+        - "VERSION=\"13 (trixie)\""
+        - "VERSION_CODENAME=trixie"
+        - "ID=debian"
+        - "HOME_URL=\"https://www.debian.org/\""
+
+  - id: shell-pip
+    when:
+      command: pip
+      args:
+        --version: true
+      state:
+        shell: dev
+    then:
+      output:
+        - "pip 25.3 from /opt/python/lib/python3.14/site-packages/pip (python 3.14)"
+
+  - id: shell-apt
+    when:
+      command: apt
+      args:
+        --version: true
+      state:
+        shell: dev
+    then:
+      output:
+        - "apt 3.0.3 (amd64)"
+
+  - id: shell-exit
+    when:
+      command: exit
+      state:
+        shell: dev
+    then:
+      state:
+        shell: none
+      output:
+        - "exit"
+
+  # ---------------------------------------------------------------- Docker Compose
+
+  - id: sed-compose
+    completes: use-dhi-postgres
+    when:
+      command: sed
+      args:
+        0: compose.yaml
+      state:
+        compose.dhi: false
+    then:
+      files:
+        - replace: compose.yaml
+          find: "image: postgres:18"
+          with: "image: dhi.io/postgres:18-debian13"
+      state:
+        compose.dhi: true
+      output: []
+
+  - id: sed-compose-done
+    when:
+      command: sed
+      args:
+        0: compose.yaml
+    then:
+      output: []
+
+  - id: compose-up-dhi
+    completes: compose-up
+    when:
+      command: docker compose up
+      state:
+        compose.dhi: true
+    then:
+      state:
+        stack.up: true
+        stack.db: "dhi.io/postgres:18-debian13"
+      output:
+        - "[+] Building 4.2s (14/14) FINISHED    docker:default"
+        - " => [web internal] load build definition from Dockerfile"
+        - " => [web] exporting to image"
+        - " => => naming to docker.io/library/project-web"
+        - { text: "[+] Running 1/1", delay: pull }
+        - " ✔ db Pulled                                                           12.4s"
+        - "[+] Running 4/4"
+        - " ✔ Network project_default          Created                             0.1s"
+        - " ✔ Volume \"project_postgres_data\"   Created                             0.0s"
+        - { text: " ✔ Container project-db-1           Healthy                             6.1s", delay: build }
+        - " ✔ Container project-web-1          Started                             6.3s"
+
+  - id: compose-up-postgres
+    when:
+      command: docker compose up
+    then:
+      state:
+        stack.up: true
+        stack.db: "postgres:18"
+      output:
+        - "[+] Building 4.2s (14/14) FINISHED    docker:default"
+        - " => [web] exporting to image"
+        - " => => naming to docker.io/library/project-web"
+        - "[+] Running 4/4"
+        - " ✔ Network project_default          Created                             0.1s"
+        - " ✔ Volume \"project_postgres_data\"   Created                             0.0s"
+        - { text: " ✔ Container project-db-1           Healthy                             6.1s", delay: build }
+        - " ✔ Container project-web-1          Started                             6.3s"
+        - ""
+        - "# compose.yaml still uses postgres:18: run the sed command of this section to switch to the hardened image."
+
+  - id: compose-ps
+    completes: compose-ps
+    when:
+      command: docker ps
+      state:
+        stack.up: true
+    then:
+      output:
+        - "CONTAINER ID   IMAGE                         COMMAND                  CREATED          STATUS                    PORTS                    NAMES"
+        - "3f2a9c1b7d4e   project-web                   \"python /app/app.py\"     12 seconds ago   Up 5 seconds              0.0.0.0:5001->5000/tcp   project-web-1"
+        - "8b1e6d0a2c5f   {{ state.stack.db }}   \"docker-entrypoint.s…\"   12 seconds ago   Up 11 seconds (healthy)   0.0.0.0:5432->5432/tcp   project-db-1"
+
+  - id: docker-ps-empty
+    when:
+      command: docker ps
+    then:
+      output:
+        - "CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES"
+
+  - id: curl-app
+    completes: open-app
+    when:
+      command: curl
+      args:
+        0: "http://localhost:5001"
+      state:
+        stack.up: true
+    then:
+      output:
+        - "<!DOCTYPE html>"
+        - "<html lang=\"en\">"
+        - "<head>"
+        - "    <meta charset=\"UTF-8\">"
+        - "    <title>Dinner Reservations</title>"
+        - "…"
+        - "<body>"
+        - "    <h1>Dinner Reservations</h1>"
+        - ""
+        - "    <form method=\"POST\" action=\"/\">"
+        - "…"
+
+  - id: curl-refused-error
+    when:
+      command: curl
+    then:
+      stderr:
+        - "curl: (7) Failed to connect to localhost port 5001 after 0 ms: Couldn't connect to server"
+      exit: 7

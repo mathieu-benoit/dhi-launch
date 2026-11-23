@@ -12,7 +12,13 @@ During this lab, you will learn to do the following:
 
 ## Run this Labspace
 
-There are two ways to run this lab:
+There are three ways to run this lab, also listed on the lab's site: <https://mathieu-benoit.github.io/dhi-launch/>.
+
+- **[In a Docker Sandbox](docs/sbx.md)** (recommended): the Labspace in a single microVM with `sbx`, from one kit set (or the kits it combines), once `sbx` is allowed to install kits from GHCR (see [Before you start](docs/sbx.md#before-you-start)):
+
+  ```bash
+  sbx run ghcr.io/mathieu-benoit/labsbx-dhi-launch:latest -p 8085:8085 -p 5001:5001 --name dhi-launch -d
+  ```
 
 - **[With Docker Compose](docs/compose.md)**: the Labspace on the labspace-infra Compose stack, with Docker (or Podman) and Docker Compose (or Podman Compose):
 
@@ -20,10 +26,6 @@ There are two ways to run this lab:
   docker compose -f oci://ghcr.io/mathieu-benoit/labspace-dhi-launch:latest up
   ```
 
-- **[In a Docker Sandbox](docs/sbx.md)**: the Labspace in a single microVM with `sbx`, from one kit set (or the kits it combines), once `sbx` is allowed to install kits from GHCR (see [Before you start](docs/sbx.md#before-you-start)):
+- **[Simulated, in your browser](https://mathieu-benoit.github.io/dhi-launch/simspace/)**: a [Simspace](https://github.com/dockersamples/simspace) with a scripted terminal, nothing to install. Its source is in [simspace/](simspace).
 
-  ```bash
-  sbx run ghcr.io/mathieu-benoit/labsbx-dhi-launch:latest -p 8085:8085 -p 5001:5001 --name dhi-launch -d
-  ```
-
-Each page covers the prerequisites, how to open the lab, how to run it from a clone of this repository to contribute, and how it is published.
+The first two pages cover the prerequisites, how to open the lab, how to run it from a clone of this repository to contribute, and how it is published.

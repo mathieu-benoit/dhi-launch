@@ -1,0 +1,248 @@
+title: "Hardened Images Launch (Simulated)"
+description: "Build the dinner app on Docker Hardened Images, compare it with Docker Scout and run it with Compose, all in your browser."
+
+# Catalog card metadata (only shown on a landing page with two or more labs).
+# labs.json is GENERATED from this block: never write or commit it.
+catalog:
+  icon: verified_user
+  tags: ["docker hardened images", "dhi", "docker scout", "docker compose"]
+  estimatedMinutes: 20
+
+# Bump this whenever you add, remove or rename steps: stored progress is
+# namespaced per version, so stale completion records are cleared.
+version: "1.0.0"
+
+# Command behaviour lives in simulator.yaml (relative to this file).
+simulator: simulator.yaml
+
+# One terminal, opened on the lab's project folder, like the hands-on lab's IDE
+# terminal.
+terminals:
+  - id: terminal
+    title: Terminal
+    icon: terminal
+
+sections:
+  - title: Introduction
+    contentPath: 01-introduction.md
+
+  - title: Prerequisites
+    contentPath: 02-prerequisites.md
+    steps:
+      - id: docker-login
+        title: "Sign in to Docker"
+      - id: dhi-login
+        title: "Sign in to dhi.io"
+
+  - title: Use DHI
+    contentPath: 03-use-dhi.md
+    steps:
+      - id: build-initial
+        title: "Build the initial image"
+      - id: use-dhi-dev
+        title: "Switch the Dockerfile to the DHI dev image"
+      - id: build-dev
+        title: "Build the hardened dev image"
+      - id: compare-initial-dev
+        title: "Compare the initial and dev images"
+      - id: shell-dev
+        title: "Open a shell in the dev image"
+
+  - title: Multi-stage build
+    contentPath: 04-multi-stage.md
+    steps:
+      - id: build-runtime
+        title: "Build the hardened runtime image"
+      - id: compare-dev-runtime
+        title: "Compare the dev and runtime images"
+      - id: shell-runtime
+        title: "Check that the runtime image has no shell"
+
+  - title: Docker Compose
+    contentPath: 05-compose.md
+    steps:
+      - id: use-dhi-postgres
+        title: "Switch the database to the DHI PostgreSQL image"
+      - id: compose-up
+        title: "Run the application"
+      - id: compose-ps
+        title: "Check the running containers"
+      - id: open-app
+        title: "Reach the application"
+      - id: compare-postgres
+        title: "Compare the PostgreSQL images"
+
+  - title: Conclusion
+    contentPath: 06-conclusion.md
+
+# The registry prefixes of the Prerequisites page, fixed to their defaults: the
+# simulated outputs are written for dhi.io and Docker Hub.
+variables:
+  registry: dhi.io/
+  dockerhub: docker.io
+
+# The lab's project, copied as is from ../../../project (the folder the hands-on
+# lab opens in its IDE). After changing the project, refresh these copies.
+files:
+  Dockerfile: |
+    FROM python:3.14
+
+    # Set working directory
+    WORKDIR /app
+
+    # Copy requirements and install
+    COPY requirements.txt .
+    RUN pip install --no-cache-dir -r requirements.txt
+
+    # Copy application code
+    COPY . .
+
+    # Expose the port
+    EXPOSE 5000
+
+    # Run the app
+    CMD ["python", "app.py"]
+  app.py: |
+    import os
+    from flask import Flask, render_template, request, redirect, url_for
+    from flask_sqlalchemy import SQLAlchemy
+
+    app = Flask(__name__)
+
+    # Configure the database connection using environment variables
+    # Format: postgresql://user:password@host:port/database_name
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    db = SQLAlchemy(app)
+
+    # Define the Guest Model (The Table)
+    class Guest(db.Model):
+        __tablename__ = 'guests'
+        id = db.Column(db.Integer, primary_key=True)
+        name = db.Column(db.String(100), nullable=False)
+        email = db.Column(db.String(100), nullable=False)
+        party_size = db.Column(db.Integer, nullable=False)
+
+        def __repr__(self):
+            return f'<Guest {self.name}>'
+
+    # Create tables if they don't exist
+    with app.app_context():
+        db.create_all()
+
+    @app.route('/', methods=['GET', 'POST'])
+    def index():
+        if request.method == 'POST':
+            # Get data from form
+            name = request.form['name']
+            email = request.form['email']
+            party_size = request.form['party_size']
+
+            # Save to database
+            new_guest = Guest(name=name, email=email, party_size=party_size)
+            db.session.add(new_guest)
+            db.session.commit()
+            return redirect(url_for('index'))
+
+        # Get all guests to display
+        guests = Guest.query.all()
+        return render_template('index.html', guests=guests)
+
+    if __name__ == '__main__':
+        # host='0.0.0.0' is required for Docker containers to be accessible
+        app.run(debug=True, host='0.0.0.0', port=5000)
+  compose.yaml: |
+    services:
+      web:
+        build: .
+        ports:
+          - "5001:5000"
+        depends_on:
+          db:
+           condition: service_healthy
+        environment:
+          - DATABASE_URL=postgresql+psycopg://postgres:mysecretpassword@db:5432/dinner_db
+      db:
+        image: postgres:18
+        ports:
+          - "5432:5432"
+        environment:
+          - POSTGRES_USER=postgres
+          - POSTGRES_PASSWORD=mysecretpassword
+          - POSTGRES_DB=dinner_db
+        volumes:
+          - postgres_data:/var/lib/postgresql/
+        healthcheck:
+          # pg_isready is a utility built into the postgres image
+          test: ["CMD-SHELL", "pg_isready -U postgres"]
+          # Check every 5 seconds
+          interval: 5s
+          # Fail if it takes longer than 5 seconds to respond
+          timeout: 5s
+          # Give up after 5 failed attempts (container becomes 'unhealthy')
+          retries: 5
+
+    volumes:
+      postgres_data:
+  requirements.txt: |
+    Flask==3.1.3
+    Flask-SQLAlchemy==3.1.1
+    psycopg[binary]==3.3.6
+  templates/index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Dinner Reservations</title>
+        
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍴</text></svg>">
+
+        <style>
+            body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+            form { background: #f4f4f4; padding: 20px; border-radius: 5px; }
+            input { display: block; margin-bottom: 10px; padding: 8px; width: 100%; box-sizing: border-box; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #333; color: white; }
+        </style>
+    </head>
+    <body>
+        <h1>Dinner Reservations</h1>
+
+        <form method="POST" action="/">
+            <label>Name:</label>
+            <input type="text" name="name" required placeholder="John Doe">
+            
+            <label>Email:</label>
+            <input type="email" name="email" required placeholder="john@example.com">
+            
+            <label>Number of Guests:</label>
+            <input type="number" name="party_size" required min="1" max="20">
+            
+            <button type="submit" style="background: #28a745; color: white; border: none; padding: 10px 20px; cursor: pointer;">Reserve Table</button>
+        </form>
+
+        <h2>Current Guest List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Party Size</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for guest in guests %}
+                <tr>
+                    <td>{{ guest.id }}</td>
+                    <td>{{ guest.name }}</td>
+                    <td>{{ guest.email }}</td>
+                    <td>{{ guest.party_size }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+    </html>
