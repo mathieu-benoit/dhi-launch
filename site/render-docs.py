@@ -77,7 +77,7 @@ def rewrite_link(match: re.Match) -> str:
 
 
 def render(src: pathlib.Path, out_dir: pathlib.Path) -> None:
-    text = src.read_text(encoding="utf-8")
+    text = src.read_text(encoding="utf-8").replace("\r", "")
     title_match = re.search(r"^# (.+)$", text, re.MULTILINE)
     title = title_match.group(1).strip() if title_match else src.stem
     # The publishing sections are for maintainers: they stay on GitHub only.
