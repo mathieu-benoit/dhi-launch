@@ -95,6 +95,66 @@
       </li>
     </ul>
 
+    <section class="compare" aria-labelledby="compare-title">
+      <h2 id="compare-title">How the options differ</h2>
+      <div class="compare-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">Docker Sandbox</th>
+              <th scope="col">Docker Compose</th>
+              <th scope="col">Simulated</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">You need</th>
+              <td>The <code>sbx</code> CLI</td>
+              <td>Docker and Docker Compose</td>
+              <td>A web browser</td>
+            </tr>
+            <tr>
+              <th scope="row">Where it runs</th>
+              <td>A microVM with its own private Docker engine</td>
+              <td>Containers on your machine's Docker engine</td>
+              <td>Entirely in your browser</td>
+            </tr>
+            <tr>
+              <th scope="row">Commands</th>
+              <td>Real</td>
+              <td>Real</td>
+              <td>Scripted: same output for everyone</td>
+            </tr>
+            <tr>
+              <th scope="row">Docker sign-in</th>
+              <td>Your host's <code>sbx login</code>, nothing to do in the lab</td>
+              <td><code>docker login</code> and <code>docker login dhi.io</code> in the lab</td>
+              <td>None</td>
+            </tr>
+            <tr>
+              <th scope="row">Editing files</th>
+              <td>VS Code in the browser</td>
+              <td>VS Code in the browser</td>
+              <td><code>sed</code> commands and Save buttons</td>
+            </tr>
+            <tr>
+              <th scope="row">Clean up</th>
+              <td><code>sbx rm</code> removes everything the lab created</td>
+              <td><code>docker compose down --volumes</code></td>
+              <td>Nothing to clean up</td>
+            </tr>
+            <tr>
+              <th scope="row">Best for</th>
+              <td>Taking the lab, isolated from your machine</td>
+              <td>Taking the lab where <code>sbx</code> isn't available</td>
+              <td>Previewing, revisiting or teaching the lab</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <footer class="footer">
       Source on <a href="https://github.com/mathieu-benoit/dhi-launch">GitHub</a>
     </footer>
