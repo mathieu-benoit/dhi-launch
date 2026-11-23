@@ -41,6 +41,10 @@
             Instructions, VS Code and a private Docker engine in a single microVM, with <code>sbx</code>.
             One kit set, nothing to clean up on your machine afterwards: <code>sbx rm</code> removes everything the lab created.
           </p>
+          <p class="note">
+            <span class="material-symbols-outlined" aria-hidden="true">info</span>
+            <span>No AI agent is involved: Docker Sandboxes runs its plain <code>shell</code> sandbox, and you type every command yourself.</span>
+          </p>
           <div class="cmd">
             <code>sbx run ghcr.io/mathieu-benoit/labsbx-dhi-launch:latest -p 8085:8085 -p 5001:5001 --name dhi-launch -d</code>
             <button class="copy" type="button" aria-label="Copy the command" title="Copy"><span class="material-symbols-outlined" aria-hidden="true">content_copy</span></button>

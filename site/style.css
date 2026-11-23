@@ -110,6 +110,14 @@ code {
 .option h2 { margin: 0; font-size: 1.2rem; line-height: 1.3; }
 .option p { margin: 0; color: var(--muted); }
 
+.option p.note {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 10px 12px; border-radius: 10px;
+  background: var(--accent-soft); color: var(--text);
+  font-size: 0.9rem;
+}
+.option p.note .material-symbols-outlined { color: var(--accent); margin-top: 2px; }
+
 .badge {
   display: inline-flex; align-items: center; gap: 4px;
   margin-bottom: 4px; padding: 2px 8px; border-radius: 999px;
@@ -197,6 +205,12 @@ code {
 .doc p, .doc li { color: var(--text); }
 .doc ul { padding-left: 1.3em; }
 .doc li + li { margin-top: 6px; }
+.doc blockquote {
+  margin: 16px 0; padding: 10px 14px;
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  background: var(--accent-soft);
+}
+.doc blockquote p { margin: 0; }
 .doc pre {
   position: relative;
   margin: 14px 0; padding: 12px 52px 12px 14px;

@@ -84,6 +84,12 @@ def render(src: pathlib.Path, out_dir: pathlib.Path) -> None:
     text = re.sub(r"^## How [^\n]*published.*?(?=^## |\Z)", "", text, flags=re.MULTILINE | re.DOTALL)
     body = markdown.markdown(text, extensions=["extra", "toc"])
     body = re.sub(r'href="([^"]+)"', rewrite_link, body)
+    # GitHub alerts (> [!NOTE]) become styled notes.
+    body = re.sub(
+        r"<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(?:</p>\s*<p>)?",
+        lambda m: f'<blockquote class="alert"><p><strong>{m.group(1).title()}:</strong> ',
+        body,
+    )
     page = TEMPLATE.format(
         title=html.escape(f"{title} | Hardened Images Launch Lab"),
         body=body,
