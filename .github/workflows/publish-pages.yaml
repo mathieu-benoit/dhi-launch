@@ -3,6 +3,8 @@ name: publish-pages
 # Publishes the repository's GitHub Pages site (https://<owner>.github.io/dhi-launch/):
 #
 #   /            the landing page (site/): the three ways to run the lab
+#   /sbx.html, /compose.html
+#                the run docs (docs/*.md), rendered by site/render-docs.py
 #   /simspace/   the simulated lab (simspace/labs/), on the prebuilt Simspace
 #                runtime, assembled like dockersamples/simspace's deploy-lab.yml
 #
@@ -14,6 +16,7 @@ on:
   pull_request:
     paths:
       - "site/**"
+      - "docs/**"
       - "simspace/**"
       - ".github/workflows/publish-pages.yaml"
   push:
@@ -21,6 +24,7 @@ on:
       - main
     paths:
       - "site/**"
+      - "docs/**"
       - "simspace/**"
       - ".github/workflows/publish-pages.yaml"
   workflow_dispatch:
@@ -70,7 +74,13 @@ jobs:
           set -euo pipefail
           mkdir -p _site
           cp -R site/. _site/
+          rm -f _site/render-docs.py _site/requirements.txt
           touch _site/.nojekyll
+
+          # /sbx.html and /compose.html: the run docs, in the site's look.
+          python3 -m venv "$RUNNER_TEMP/docs-venv"
+          "$RUNNER_TEMP/docs-venv/bin/pip" install --quiet --require-hashes -r site/requirements.txt
+          "$RUNNER_TEMP/docs-venv/bin/python" site/render-docs.py docs _site
 
           # /simspace/: the runtime image's static files, with this repo's labs
           # and a freshly generated labs.json (the steps of deploy-lab.yml).

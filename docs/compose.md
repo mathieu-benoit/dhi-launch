@@ -1,6 +1,6 @@
 # Run the lab with Docker Compose
 
-This is the original way to run this Labspace, on the [labspace-infra](https://github.com/dockersamples/labspace-infra) Compose stack. It works anywhere Docker (or Podman) and Docker Compose (or Podman Compose) are installed.
+This is the original way to run this Labspace, on the [labspace-infra](https://github.com/dockersamples/labspace-infra) Compose stack. It works anywhere Docker and Docker Compose are installed.
 
 ## Run the published lab
 
@@ -28,7 +28,7 @@ CONTENT_PATH=$PWD docker compose up --watch
 
 On Windows with PowerShell:
 
-```bash
+```powershell
 $Env:CONTENT_PATH = (Get-Location).Path; docker compose up --watch
 ```
 

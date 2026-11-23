@@ -20,7 +20,7 @@ There are three ways to run this lab, also listed on the lab's site: <https://ma
   sbx run ghcr.io/mathieu-benoit/labsbx-dhi-launch:latest -p 8085:8085 -p 5001:5001 --name dhi-launch -d
   ```
 
-- **[With Docker Compose](docs/compose.md)**: the Labspace on the labspace-infra Compose stack, with Docker (or Podman) and Docker Compose (or Podman Compose):
+- **[With Docker Compose](docs/compose.md)**: the Labspace on the labspace-infra Compose stack, with Docker and Docker Compose:
 
   ```bash
   docker compose -f oci://ghcr.io/mathieu-benoit/labspace-dhi-launch:latest up
