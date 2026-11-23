@@ -14,7 +14,7 @@ One lab, [`labs/dhi-launch/`](labs/dhi-launch), with one section per page of the
 - **Registry prefixes are fixed** to `dhi.io/` and `docker.io`, instead of asked on the *Prerequisites* page.
 - **File edits are commands.** The hands-on lab edits the `Dockerfile` and `compose.yaml` in VS Code; here a `sed` command makes the same change, and the multi-stage `Dockerfile` has a **Save** button.
 - **`curl` replaces the browser** to reach the application.
-- **The figures are made consistent.** Where the hands-on lab's pages disagree, the simulation follows the deltas of each `docker scout compare`: the *Docker Compose* page shows -164 CVEs for PostgreSQL (like the conclusion's table), and the conclusion shows 168 MB for the hardened Python image (from the multi-stage build's -112 MB).
+- **The figures are the hands-on lab's**: the CVE counts of its `docker scout compare` screenshots, and its on-disk sizes and package counts. A real `docker scout compare` shows compressed sizes, and today's CVE counts differ.
 - **The *More tests* page is left out**: it needs a website behind your corporate TLS certificate.
 
 ## Author locally

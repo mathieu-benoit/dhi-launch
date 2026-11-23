@@ -46,7 +46,7 @@ docker scout compare --ignore-unchanged --to registry://$$dockerhub$$/postgres:1
 ```
 
 ✅ See the number of CVEs, packages and size of the image just got improved:
-- CVEs: -164
+- CVEs: -115
 - Packages: -74
 - Size (on disk): -82 MB
 - Run-as: `root` --> `postgres`

@@ -43,10 +43,10 @@ defaults:
 
 # Figures used by the docker scout compare outputs, from the hands-on lab:
 #   dinner:initial  python:3.14                  1C 35H 33M 219L 27?   510 packages  1.71 GB  root
-#   dinner:dev      dhi python:3.14-debian13-dev 11H 12M 21L           182 packages  280 MB   root
+#   dinner:dev      dhi python:3.14-debian13-dev 9H 8M 27L             182 packages  280 MB   root
 #   dinner:runtime  dhi python:3.14-debian13     9H 7M 12L             107 packages  168 MB   nonroot
-#   postgres:18                                  8C 38H 40M 74L 6?     205 packages  650 MB   root
-#   dhi postgres:18-debian13                     2L                    131 packages  568 MB   postgres
+#   postgres:18                                  2C 27H 32M 56L        205 packages  650 MB   root
+#   dhi postgres:18-debian13                     1H 1L                 131 packages  568 MB   postgres
 
 scenarios:
   # ---------------------------------------------------------------- Prerequisites
@@ -231,8 +231,8 @@ scenarios:
         - "  ────────────────────┼─────────────────────────────┼─────────────────────────────"
         - "    Target            │ local://dinner:dev          │ local://dinner:initial"
         - "      platform        │ linux/amd64                 │ linux/amd64"
-        - "      vulnerabilities │ 0C 11H 12M 21L              │ 1C 35H 33M 219L 27?"
-        - "                      │ -1 -24 -21 -198 -27         │"
+        - "      vulnerabilities │ 0C 9H 8M 27L                │ 1C 35H 33M 219L 27?"
+        - "                      │ -1 -26 -25 -192 -27         │"
         - "      size            │ 280 MB (-1.43 GB)           │ 1.71 GB"
         - "      packages        │ 182 (-328)                  │ 510"
         - "      user            │ root                        │ root"
@@ -262,8 +262,8 @@ scenarios:
         - "  ────────────────────┼─────────────────────────────┼─────────────────────────────"
         - "    Target            │ local://dinner:runtime      │ local://dinner:dev"
         - "      platform        │ linux/amd64                 │ linux/amd64"
-        - "      vulnerabilities │ 0C 9H 7M 12L                │ 0C 11H 12M 21L"
-        - "                      │    -2 -5 -9                 │"
+        - "      vulnerabilities │ 0C 9H 7M 12L                │ 0C 9H 8M 27L"
+        - "                      │       -1 -15                │"
         - "      size            │ 168 MB (-112 MB)            │ 280 MB"
         - "      packages        │ 107 (-75)                   │ 182"
         - "      user            │ nonroot                     │ root"
@@ -290,8 +290,8 @@ scenarios:
         - "  ────────────────────┼────────────────────────────────────────┼──────────────────────────────────"
         - "    Target            │ registry://dhi.io/postgres:18-debian13 │ registry://docker.io/postgres:18"
         - "      platform        │ linux/amd64                            │ linux/amd64"
-        - "      vulnerabilities │ 2L                                     │ 8C 38H 40M 74L 6?"
-        - "                      │ -8 -38 -40 -72 -6                      │"
+        - "      vulnerabilities │ 0C 1H 0M 1L                            │ 2C 27H 32M 56L"
+        - "                      │ -2 -26 -32 -55                         │"
         - "      size            │ 568 MB (-82 MB)                        │ 650 MB"
         - "      packages        │ 131 (-74)                              │ 205"
         - "      user            │ postgres                               │ root"

@@ -23,7 +23,7 @@ And here are the benefits illustrated with the PostgreSQL container image:
 
 | | Default PostgreSQL |  DHI PostgreSQL | |
 |-|--------------------|----------------|-|
-| CVEs | 8C 38H 40M 74L 6? | 2L | -164 |
+| CVEs | 2C 27H 32M 56L | 1H 1L | -115 |
 | Size (on disk) | 650 MB | 568 MB | -82 MB |
 | Number of packages | 205 | 131 | -74 |
 | Run-as | `root` | `postgres` | |
