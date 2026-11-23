@@ -12,20 +12,10 @@ During this lab, you will learn to do the following:
 
 ## Run this Labspace
 
-There are three ways to run this lab, also listed on the lab's site: <https://mathieu-benoit.github.io/dhi-launch/>.
+**👉 [Open the lab's site](https://mathieu-benoit.github.io/dhi-launch/)** to pick how to run it:
 
-- **[In a Docker Sandbox](docs/sbx.md)** (recommended): the Labspace in a single microVM with `sbx`, from one kit set (or the kits it combines), once `sbx` is allowed to install kits from GHCR (see [Before you start](docs/sbx.md#before-you-start)):
+- **[In a Docker Sandbox](https://mathieu-benoit.github.io/dhi-launch/sbx.html)** (recommended): the Labspace in a single microVM with `sbx`.
+- **[With Docker Compose](https://mathieu-benoit.github.io/dhi-launch/compose.html)**: the Labspace on the labspace-infra Compose stack.
+- **[Simulated, in your browser](https://mathieu-benoit.github.io/dhi-launch/simspace/)**: a [Simspace](https://github.com/dockersamples/simspace) with a scripted terminal, nothing to install.
 
-  ```bash
-  sbx run ghcr.io/mathieu-benoit/labsbx-dhi-launch:latest -p 8085:8085 -p 5001:5001 --name dhi-launch -d
-  ```
-
-- **[With Docker Compose](docs/compose.md)**: the Labspace on the labspace-infra Compose stack, with Docker and Docker Compose:
-
-  ```bash
-  docker compose -f oci://ghcr.io/mathieu-benoit/labspace-dhi-launch:latest up
-  ```
-
-- **[Simulated, in your browser](https://mathieu-benoit.github.io/dhi-launch/simspace/)**: a [Simspace](https://github.com/dockersamples/simspace) with a scripted terminal, nothing to install. Its source is in [simspace/](simspace).
-
-The first two pages cover the prerequisites, how to open the lab, how to run it from a clone of this repository to contribute, and how it is published.
+To contribute, see [docs/sbx.md](docs/sbx.md) and [docs/compose.md](docs/compose.md): they also cover running the lab from a clone of this repository and how it is published. The Simspace's source is in [simspace/](simspace), and the site's in [site/](site).
