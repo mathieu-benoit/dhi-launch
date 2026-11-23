@@ -38,19 +38,21 @@ The stack is defined by [compose.yaml](../compose.yaml), which includes the labs
 
 ## Tear down the lab
 
-When you are done, stop the Labspace and remove its containers, networks and volumes. Run the command that matches how you started it.
+When you are done, stop the Labspace and remove its containers, networks and volumes.<!-- github-only --> Run the command that matches how you started it.
 
-The published lab:
+The published lab:<!-- /github-only -->
 
 ```bash
 docker compose -f oci://ghcr.io/mathieu-benoit/labspace-dhi-launch:latest down --volumes
 ```
 
+<!-- github-only -->
 From your clone:
 
 ```bash
 docker compose down --volumes
 ```
+<!-- /github-only -->
 
 ## How it is published
 

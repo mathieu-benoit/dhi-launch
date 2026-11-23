@@ -4,8 +4,9 @@
 
 Each docs/<name>.md becomes <out>/<name>.html, in the landing page's look.
 Links to other docs pages stay on the site (<name>.html); links to the rest of
-the repository (../...) point to it on GitHub. The "How ... published"
-sections are left out.
+the repository (../...) point to it on GitHub. The "Contribute to the lab" and
+"How ... published" sections are left out, and so is anything between
+<!-- github-only --> and <!-- /github-only -->.
 """
 
 import html
@@ -80,8 +81,15 @@ def render(src: pathlib.Path, out_dir: pathlib.Path) -> None:
     text = src.read_text(encoding="utf-8").replace("\r", "")
     title_match = re.search(r"^# (.+)$", text, re.MULTILINE)
     title = title_match.group(1).strip() if title_match else src.stem
-    # The publishing sections are for maintainers: they stay on GitHub only.
-    text = re.sub(r"^## How [^\n]*published.*?(?=^## |\Z)", "", text, flags=re.MULTILINE | re.DOTALL)
+    # The contributing and publishing sections are for maintainers: they stay on GitHub only.
+    text = re.sub(
+        r"^## (?:Contribute to the lab|How [^\n]*published)\b.*?(?=^## |\Z)",
+        "",
+        text,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+    # So is anything between <!-- github-only --> and <!-- /github-only -->.
+    text = re.sub(r"<!-- github-only -->.*?<!-- /github-only -->\n?", "", text, flags=re.DOTALL)
     body = markdown.markdown(text, extensions=["extra", "toc"])
     body = re.sub(r'href="([^"]+)"', rewrite_link, body)
     # GitHub alerts (> [!NOTE]) become styled notes.
