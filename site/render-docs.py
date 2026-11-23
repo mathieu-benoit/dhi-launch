@@ -4,7 +4,8 @@
 
 Each docs/<name>.md becomes <out>/<name>.html, in the landing page's look.
 Links to other docs pages stay on the site (<name>.html); links to the rest of
-the repository (../...) point to it on GitHub.
+the repository (../...) point to it on GitHub. The "How ... published"
+sections are left out.
 """
 
 import html
@@ -79,6 +80,8 @@ def render(src: pathlib.Path, out_dir: pathlib.Path) -> None:
     text = src.read_text(encoding="utf-8")
     title_match = re.search(r"^# (.+)$", text, re.MULTILINE)
     title = title_match.group(1).strip() if title_match else src.stem
+    # The publishing sections are for maintainers: they stay on GitHub only.
+    text = re.sub(r"^## How [^\n]*published.*?(?=^## |\Z)", "", text, flags=re.MULTILINE | re.DOTALL)
     body = markdown.markdown(text, extensions=["extra", "toc"])
     body = re.sub(r'href="([^"]+)"', rewrite_link, body)
     page = TEMPLATE.format(
