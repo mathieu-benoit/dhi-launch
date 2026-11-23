@@ -2,6 +2,9 @@
 
 You can run this lab with [`sbx`](https://docs.docker.com/ai/sandboxes/) instead of Docker Compose. Everything (instructions, VS Code, and a private Docker engine for the lab) runs in a single microVM, and `sbx rm` removes everything the lab created.
 
+> [!NOTE]
+> No AI agent is involved, even though this runs in Docker Sandboxes: the lab uses the plain `shell` sandbox, and you type every command yourself.
+
 ## The kits
 
 This option uses [Sandbox Kits](https://github.com/docker/sandbox-kit-spec), layered onto the `shell` sandbox:
@@ -61,7 +64,7 @@ When you are done, delete the sandbox:
 sbx rm dhi-launch
 ```
 
-This removes everything the lab created: the containers, images, volumes and networks of the sandbox's private Docker engine, and your changes to the lab's project. When you ran from a clone with `./sbx-kit`, your edits to `project/` are in the clone and stay there.
+This removes everything the lab created: the containers, images, volumes and networks of the sandbox's private Docker engine, and your changes to the lab's project.<!-- github-only --> When you ran from a clone with `./sbx-kit`, your edits to `project/` are in the clone and stay there.<!-- /github-only -->
 
 ## How the kits are published
 

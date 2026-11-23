@@ -13,7 +13,7 @@ Here are the benefits illustrated with the Python container image:
 | | Default Python |  DHI Python | |
 |-|--------------------|----------------|-|
 | CVEs | 1C 35H 33M 219L 27? | 9H 7M 12L | -287 |
-| Size (on disk) | 1.71 GB | 153 MB | -1.56 GB |
+| Size (on disk) | 1.71 GB | 168 MB | -1.54 GB |
 | Number of packages | 510 | 107 | -403 |
 | Run-as | `root` | `nonroot` | |
 | Package manager | Yes | No | |
@@ -23,7 +23,7 @@ And here are the benefits illustrated with the PostgreSQL container image:
 
 | | Default PostgreSQL |  DHI PostreSQL | |
 |-|--------------------|----------------|-|
-| CVEs | 8C 38H 40M 74L 6? | 2L | -164 |
+| CVEs | 2C 27H 32M 56L | 1H 1L | -115 |
 | Size (on disk) | 650 MB | 568 MB | -82 MB |
 | Number of packages | 205 | 131 | -74 |
 | Run-as | `root` | `postgres` | |
